@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, Suspense } from "react"
 import { useSearchParams, useRouter } from "next/navigation"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
@@ -62,7 +62,7 @@ const defaultContent = {
   messagePlaceholder: "Enrolling a child? Partnering your school? Workforce initiative? Tell us your goal...",
 }
 
-export default function ContactPage() {
+function ContactPageContent() {
   const searchParams = useSearchParams()
   const router = useRouter()
 
@@ -271,5 +271,27 @@ export default function ContactPage() {
 
       <Footer />
     </main>
+  )
+}
+
+function ContactPageFallback() {
+  return (
+    <main className="min-h-screen">
+      <Header />
+      <section className="pt-24 pb-24 lg:pt-32 lg:pb-32">
+        <div className="mx-auto max-w-3xl px-6 lg:px-8 flex items-center justify-center min-h-[400px]">
+          <Loader2 className="h-10 w-10 animate-spin text-muted-foreground" />
+        </div>
+      </section>
+      <Footer />
+    </main>
+  )
+}
+
+export default function ContactPage() {
+  return (
+    <Suspense fallback={<ContactPageFallback />}>
+      <ContactPageContent />
+    </Suspense>
   )
 }
