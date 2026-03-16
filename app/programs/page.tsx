@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useState } from "react"
 import Link from "next/link"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
@@ -19,15 +19,40 @@ const accordionTriggerClass =
 
 const programs = [
   {
-    id: "startup-lab",
+    id: "ascendiq-bootcamp",
     number: "01",
+    phase: "DISCOVER",
+    title: "Summer Startup Lab",
+    tagline: "Explore ideas. Build something real.",
+    description: "A structured summer experience for young students to discover entrepreneurship through hands-on projects. Students ideate, prototype, and present a real idea—building curiosity, confidence, and foundational skills before high school ends.",
+    details: {
+      duration: "6-week summer program",
+      format: "Cohort-based, daily sessions",
+      ageRange: "Ages 13–15",
+      whatIncluded: [
+        "Introduction to entrepreneurship and design thinking",
+        "Team-based ideation and prototype building",
+        "Peer collaboration and presentation skills",
+        "Demo day with real feedback from mentors",
+      ],
+      outcomes: [
+        "Confidence to explore and act on ideas",
+        "Early exposure to entrepreneurial thinking",
+        "A project to build on in future programs",
+      ],
+    },
+  },
+  {
+    id: "startup-lab",
+    number: "02",
+    phase: "BUILD",
     title: "Entrepreneurship Training",
     tagline: "Build real products. Launch real ventures.",
-    description: "Young people learn by doing — initiative, execution, problem-solving. The skills that AI can't replace. Reduce the risk of your kids graduating with theory but no proof they can ship.",
+    description: "Young people learn by doing — initiative, execution, problem-solving. The skills that AI can't replace. Help your student prove they can build and deliver real projects—not just talk about ideas.",
     details: {
       duration: "12-week program",
       format: "Cohort-based, 2 sessions/week",
-      ageRange: "Ages 14–22",
+      ageRange: "Ages 16–18",
       whatIncluded: [
         "Ideation to MVP — ship a real product or service",
         "Mentorship from operators who've built and scaled",
@@ -43,14 +68,15 @@ const programs = [
   },
   {
     id: "skills-internships",
-    number: "02",
-    title: "Technical Proficiency & Apprenticeships",
-    tagline: "Proven models. Hands-on expertise. Pathways to lasting careers.",
-    description: "Gain hands-on expertise through industry apprenticeships and technical assistance. We use proven models to prepare workers for roles in the technology-enabled economy—with curriculum and mentorship that lead to good-paying roles.",
+    number: "03",
+    phase: "WORK",
+    title: "Apprenticeship Skill Building",
+    tagline: "Learn in-demand skills. Get hired or build your own venture.",
+    description: "Pay upfront for in-demand skills that open doors. Complete the program and either get hired by our partner employers or use the skills to build your own business. Businesses: contact us directly for business-sized contracts.",
     details: {
       duration: "8–16 weeks",
       format: "Project-based learning + optional internship placement",
-      ageRange: "Ages 13–21",
+      ageRange: "Ages 18–22",
       whatIncluded: [
         "Technical and soft skills: collaboration, communication, time management",
         "Real project work that goes in a portfolio",
@@ -66,14 +92,15 @@ const programs = [
   },
   {
     id: "career-training",
-    number: "03",
-    title: "Pathways to Good-Paying Roles",
+    number: "04",
+    phase: "LAUNCH",
+    title: "Mentoring & Coaching",
     tagline: "Structured transition from training to high-impact employment.",
     description: "Our pathways connect workers with industry partners and veteran operators—designed for long-term career success and community development. Career readiness that meets the needs of working people.",
     details: {
       duration: "Ongoing, 6-month minimum recommended",
       format: "1:1 mentorship + group workshops",
-      ageRange: "Ages 16–24",
+      ageRange: "Ages 18–25",
       whatIncluded: [
         "Paired with a mentor from your target industry",
         "Career mapping and goal-setting sessions",
@@ -90,58 +117,7 @@ const programs = [
 ]
 
 export default function ProgramsPage() {
-  const [openValue, setOpenValue] = useState<string>(() => {
-    if (typeof window !== "undefined") {
-      const hash = window.location.hash.slice(1)
-      return programs.some((p) => p.id === hash) ? hash : ""
-    }
-    return ""
-  })
-  const itemRefs = useRef<Record<string, HTMLDivElement | null>>({})
-  const openValueRef = useRef(openValue)
-  openValueRef.current = openValue
-
-  useEffect(() => {
-    let debounceTimer: ReturnType<typeof setTimeout> | null = null
-
-    const pickOpen = () => {
-      // Use the top-third of the viewport as the target line
-      const targetY = window.innerHeight * 0.35
-      let bestId = ""
-      let bestDist = Infinity
-
-      programs.forEach((p) => {
-        const el = itemRefs.current[p.id]
-        if (!el) return
-        const rect = el.getBoundingClientRect()
-        // Skip items fully above or fully below viewport
-        if (rect.bottom < 80 || rect.top > window.innerHeight) return
-        const dist = Math.abs(rect.top - targetY)
-        if (dist < bestDist) {
-          bestDist = dist
-          bestId = p.id
-        }
-      })
-
-      if (bestId && bestId !== openValueRef.current) {
-        setOpenValue(bestId)
-      }
-    }
-
-    const handleScroll = () => {
-      if (debounceTimer) clearTimeout(debounceTimer)
-      debounceTimer = setTimeout(pickOpen, 120)
-    }
-
-    window.addEventListener("scroll", handleScroll, { passive: true })
-    // Run once on mount to open the right item if page loads mid-scroll
-    pickOpen()
-
-    return () => {
-      if (debounceTimer) clearTimeout(debounceTimer)
-      window.removeEventListener("scroll", handleScroll)
-    }
-  }, [])
+  const [openValue, setOpenValue] = useState<string>("")
 
   // Expand section from URL hash on load (e.g. /programs#startup-lab)
   useEffect(() => {
@@ -175,13 +151,12 @@ export default function ProgramsPage() {
               collapsible
               value={openValue}
               onValueChange={setOpenValue}
-              className="programs-accordion space-y-4"
+              className="programs-accordion space-y-6"
             >
               {programs.map((program, index) => {
                 return (
                   <div
                     key={program.id}
-                    ref={(el) => { itemRefs.current[program.id] = el }}
                     data-accordion-id={program.id}
                   >
                     <AnimatedContent
@@ -201,9 +176,14 @@ export default function ProgramsPage() {
                           {program.number}
                         </span>
                         <div className="flex-1 min-w-0">
-                          <h2 className="font-semibold text-xl sm:text-2xl text-foreground">
-                            {program.title}
-                          </h2>
+                          <div className="flex items-center gap-2 flex-wrap mb-1">
+                            <h2 className="font-semibold text-xl sm:text-2xl text-foreground">
+                              {program.title}
+                            </h2>
+                            <span className="text-xs font-bold uppercase tracking-widest px-2 py-0.5 rounded-full bg-primary/10 text-primary">
+                              {program.phase}
+                            </span>
+                          </div>
                           <p className="text-primary font-medium text-sm mt-1">
                             {program.tagline}
                           </p>
@@ -250,16 +230,46 @@ export default function ProgramsPage() {
                           {program.details.ageRange}
                         </div>
                         <div className="flex flex-wrap gap-3">
-                          <Button asChild>
-                            <Link href={`/enroll`}>
-                              Enroll Now
-                            </Link>
-                          </Button>
-                          <Button asChild variant="outline">
-                            <Link href="/contact">
-                              Inquire / Ask a Question
-                            </Link>
-                          </Button>
+                          {program.id === "career-training" ? (
+                            <>
+                              <Button asChild>
+                                <Link href="/enroll?program=career-training">
+                                  For Parents – Sign Up Your Student
+                                </Link>
+                              </Button>
+                              <Button asChild variant="outline">
+                                <Link href="/contact?audience=school&program=pathways">
+                                  For Schools – Reach Out Directly
+                                </Link>
+                              </Button>
+                            </>
+                          ) : program.id === "skills-internships" ? (
+                            <>
+                              <Button asChild>
+                                <Link href="/enroll?program=skills-internships">
+                                  Enroll Now
+                                </Link>
+                              </Button>
+                              <Button asChild variant="outline">
+                                <Link href="/contact?audience=employer">
+                                  For Businesses – Contact for Contracts
+                                </Link>
+                              </Button>
+                            </>
+                          ) : (
+                            <>
+                              <Button asChild>
+                                <Link href={`/enroll`}>
+                                  Enroll Now
+                                </Link>
+                              </Button>
+                              <Button asChild variant="outline">
+                                <Link href="/contact">
+                                  Inquire / Ask a Question
+                                </Link>
+                              </Button>
+                            </>
+                          )}
                         </div>
                       </div>
                     </AccordionContent>
@@ -271,6 +281,21 @@ export default function ProgramsPage() {
             </Accordion>
           </div>
 
+          <AnimatedContent direction="vertical" distance={30} delay={0.3} duration={0.6}>
+            <div className="mt-16 pt-12 border-t border-border">
+              <p className="text-sm font-semibold uppercase tracking-widest text-primary mb-4">Also available</p>
+              <div className="rounded-lg border border-border bg-card px-6 py-5 flex flex-wrap items-center justify-between gap-4">
+                <div>
+                  <h3 className="font-semibold text-lg text-foreground">AscendIQ Flex Bundle</h3>
+                  <p className="text-sm text-muted-foreground mt-1">Combine 2–3 programs and save $100. Build the right pathway for your student.</p>
+                </div>
+                <Button asChild>
+                  <Link href="/enroll">View Bundle Options</Link>
+                </Button>
+              </div>
+            </div>
+          </AnimatedContent>
+
           <AnimatedContent direction="vertical" distance={30} delay={0.4} duration={0.6}>
             <div className="mt-20 pt-16 border-t border-border text-center">
               <p className="text-muted-foreground mb-6">
@@ -281,7 +306,7 @@ export default function ProgramsPage() {
                   <Link href="/contact">Get in Touch</Link>
                 </Button>
                 <Button asChild variant="outline">
-                  <Link href="/contact">Ways to Engage</Link>
+                  <Link href="/community">Ways to Engage</Link>
                 </Button>
               </div>
             </div>

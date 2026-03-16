@@ -7,16 +7,19 @@ import { Footer } from "@/components/footer"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
-import { CheckCircle, AlertCircle, Loader2, GraduationCap, Users, Building2, MessageSquare } from "lucide-react"
+import { CheckCircle, AlertCircle, Loader2, GraduationCap, Users, Building2, MessageSquare, Award, School } from "lucide-react"
 
 type Status = "idle" | "loading" | "success" | "error"
-type AudienceKey = "school" | "parent" | "employer" | ""
+type AudienceKey = "school" | "parent" | "employer" | "schoolDistrict" | "sponsor" | "mentor" | ""
 
 const audienceTabs: { key: AudienceKey; label: string; icon: React.ElementType }[] = [
   { key: "", label: "General", icon: MessageSquare },
   { key: "school", label: "For Schools", icon: GraduationCap },
+  { key: "schoolDistrict", label: "School Districts", icon: School },
   { key: "parent", label: "For Parents", icon: Users },
   { key: "employer", label: "For Employers", icon: Building2 },
+  { key: "mentor", label: "Become a Mentor", icon: Users },
+  { key: "sponsor", label: "Sponsors", icon: Award },
 ]
 
 const audienceContent: Record<string, {
@@ -50,6 +53,30 @@ const audienceContent: Record<string, {
     orgPlaceholder: "e.g. Acme Manufacturing",
     subjectPlaceholder: "e.g. Apprenticeship partnership or hiring pipeline",
     messagePlaceholder: "Tell us about your workforce needs, industry, and how you'd like to engage...",
+  },
+  schoolDistrict: {
+    title: "Custom Contracts for School Districts",
+    subtext: "Bring AscendIQ to your district with custom contracts and pricing. We'll discuss your scale, goals, and partnership structure—response within 24 hours.",
+    orgLabel: "School District Name",
+    orgPlaceholder: "e.g. City Unified School District",
+    subjectPlaceholder: "e.g. District-wide workforce readiness partnership",
+    messagePlaceholder: "Tell us about your district size, student count, and workforce development goals...",
+  },
+  sponsor: {
+    title: "Join as a Sponsor",
+    subtext: "Invest in the next generation. Silver, Gold, and Platinum tiers from $5k to $25k. Push your products, connect with students, and build lasting impact.",
+    orgLabel: "Company or Organization",
+    orgPlaceholder: "e.g. Acme Corp",
+    subjectPlaceholder: "e.g. Platinum sponsorship inquiry",
+    messagePlaceholder: "Tell us which tier interests you and how you'd like to engage...",
+  },
+  mentor: {
+    title: "Become a Mentor",
+    subtext: "Get paired with students à la carte. Share your expertise, give back, and be recognized as someone who builds future builders.",
+    orgLabel: "Current Role / Industry",
+    orgPlaceholder: "e.g. Tech founder, Marketing Director",
+    subjectPlaceholder: "e.g. Mentorship for entrepreneurship program",
+    messagePlaceholder: "Tell us about your background and how you'd like to mentor...",
   },
 }
 

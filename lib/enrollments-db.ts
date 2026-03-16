@@ -29,6 +29,21 @@ export type EnrollmentRecord = {
   receiptUrl?: string
   lmsSyncedAt?: string
   createdAt: string
+  parentFirstName?: string
+  parentLastName?: string
+  signUpForNews?: boolean
+  country?: string
+  addressLine1?: string
+  addressLine2?: string
+  city?: string
+  state?: string
+  zipCode?: string
+  grade?: string
+  studentFirstName?: string
+  studentLastName?: string
+  studentEmail?: string
+  studentPhone?: string
+  highSchoolAttending?: string
 }
 
 export async function saveEnrollment(record: Omit<EnrollmentRecord, "id" | "createdAt">): Promise<EnrollmentRecord> {

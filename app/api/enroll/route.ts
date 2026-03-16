@@ -20,6 +20,21 @@ export async function POST(req: NextRequest) {
     email?: string
     phone?: string
     studentName?: string
+    parentFirstName?: string
+    parentLastName?: string
+    signUpForNews?: boolean
+    country?: string
+    addressLine1?: string
+    addressLine2?: string
+    city?: string
+    state?: string
+    zipCode?: string
+    grade?: string
+    studentFirstName?: string
+    studentLastName?: string
+    studentEmail?: string
+    studentPhone?: string
+    highSchoolAttending?: string
   }
 
   try {
@@ -28,27 +43,70 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Invalid request body" }, { status: 400 })
   }
 
-  const { sourceId, programId, programName, amount, name, email, phone, studentName } = body
+  const {
+    sourceId,
+    programId,
+    programName,
+    amount,
+    name,
+    email,
+    phone,
+    studentName,
+    parentFirstName,
+    parentLastName,
+    signUpForNews,
+    country,
+    addressLine1,
+    addressLine2,
+    city,
+    state,
+    zipCode,
+    grade,
+    studentFirstName,
+    studentLastName,
+    studentEmail,
+    studentPhone,
+    highSchoolAttending,
+  } = body
 
   if (!sourceId || !programId || !amount || !name || !email) {
     return NextResponse.json({ error: "Missing required fields." }, { status: 422 })
   }
 
-  // Only AscendIQ Bootcamp is currently open for enrollment
-  if (programId !== "ascendiq-bootcamp") {
+  // Only open programs accepted
+  // ⚠️ Remove "test-payment" after confirming Square works end-to-end
+  const OPEN_PROGRAMS = ["ascendiq-bootcamp", "flex-bundle", "test-payment"]
+  if (!OPEN_PROGRAMS.includes(programId)) {
     return NextResponse.json(
       { error: "This program is not currently open for enrollment." },
       { status: 400 }
     )
   }
 
-  // Enforce correct amount for AscendIQ Bootcamp ($1500)
-  const EXPECTED_CENTS = 150_000
-  if (amount !== EXPECTED_CENTS) {
-    return NextResponse.json(
-      { error: "Invalid amount. AscendIQ Bootcamp is $1,500 per student." },
-      { status: 400 }
-    )
+  // Enforce pricing per program
+  if (programId === "ascendiq-bootcamp") {
+    const EXPECTED_CENTS = 149_500
+    if (amount !== EXPECTED_CENTS) {
+      return NextResponse.json(
+        { error: "Invalid amount. Summer Startup Lab is $1,495 per student." },
+        { status: 400 }
+      )
+    }
+  } else if (programId === "flex-bundle") {
+    const MIN_BUNDLE_CENTS = 149_900
+    if (amount < MIN_BUNDLE_CENTS) {
+      return NextResponse.json(
+        { error: "Invalid amount. Flex Bundle starts at $1,499." },
+        { status: 400 }
+      )
+    }
+  } else if (programId === "test-payment") {
+    if (amount !== 1) {
+      return NextResponse.json(
+        { error: "Test payment must be exactly $0.01." },
+        { status: 400 }
+      )
+    }
   }
 
   try {
@@ -79,6 +137,21 @@ export async function POST(req: NextRequest) {
         amountCents: amount,
         squarePaymentId: payment?.id ?? "",
         receiptUrl: payment?.receiptUrl,
+        parentFirstName: parentFirstName ?? "",
+        parentLastName: parentLastName ?? "",
+        signUpForNews: signUpForNews ?? false,
+        country: country ?? "",
+        addressLine1: addressLine1 ?? "",
+        addressLine2: addressLine2 ?? "",
+        city: city ?? "",
+        state: state ?? "",
+        zipCode: zipCode ?? "",
+        grade: grade ?? "",
+        studentFirstName: studentFirstName ?? "",
+        studentLastName: studentLastName ?? "",
+        studentEmail: studentEmail ?? "",
+        studentPhone: studentPhone ?? "",
+        highSchoolAttending: highSchoolAttending ?? "",
       })
     } catch (dbErr) {
       console.error("DynamoDB enrollment save failed:", dbErr)

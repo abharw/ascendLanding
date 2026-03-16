@@ -23,7 +23,7 @@ const audiences = [
     label: "For Parents",
     headline: "Give your student a real edge before graduation.",
     bullets: [
-      "Portfolio-ready skills employers actually want",
+      "Concrete, job-ready skills employers actually look for",
       "Apprenticeship and internship matching",
       "Cohort-based programs, ages 13–24",
     ],

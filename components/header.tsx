@@ -8,6 +8,10 @@ import { Button } from "@/components/ui/button"
 
 const navLinks = [
   { label: "Programs", href: "/programs" },
+  { label: "Impact", href: "/impact" },
+  { label: "Community", href: "/community" },
+  { label: "Mentors", href: "/mentors" },
+  { label: "Sponsor", href: "/sponsor" },
   { label: "The Team", href: "/team" },
   { label: "Contact", href: "/contact" },
   { label: "Enroll", href: "/enroll" },
@@ -56,11 +60,11 @@ export function Header() {
         </div>
       </nav>
 
-      {/* Mobile menu */}
+      {/* Mobile menu - z-[60] ensures it sits above hero and header */}
       {mobileMenuOpen && (
-        <div className="lg:hidden fixed inset-0 z-50">
+        <div className="lg:hidden fixed inset-0 z-[60]">
           <div className="fixed inset-0 bg-foreground/20 backdrop-blur-sm" onClick={() => setMobileMenuOpen(false)} />
-          <div className="fixed inset-y-0 right-0 w-full max-w-sm bg-background px-6 py-6 shadow-xl">
+          <div className="fixed inset-y-0 right-0 w-full max-w-sm bg-background px-6 py-6 shadow-xl overflow-y-auto">
             <div className="flex items-center justify-between">
               <Link href="/" className="-m-1.5 p-1.5 flex items-center gap-2" onClick={() => setMobileMenuOpen(false)}>
                 <Image src="/ascendiq-logo.png" alt="AscendIQ" width={48} height={48} className="h-12 w-auto" />

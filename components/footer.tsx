@@ -3,13 +3,20 @@ import Image from "next/image"
 
 const navigation = {
   programs: [
+    { name: "Summer Startup Lab", href: "/programs#ascendiq-bootcamp" },
     { name: "Entrepreneurship Training", href: "/programs#startup-lab" },
-    { name: "Technical Proficiency & Apprenticeships", href: "/programs#skills-internships" },
-    { name: "Pathways to Good-Paying Roles", href: "/programs#career-training" },
+    { name: "Apprenticeship Skill Building", href: "/programs#skills-internships" },
+    { name: "Mentoring & Coaching", href: "/programs#career-training" },
+    { name: "Flex Bundle", href: "/enroll" },
   ],
 
   company: [
+    { name: "Impact", href: "/impact" },
     { name: "Mission", href: "/mission" },
+    { name: "Community", href: "/community" },
+    { name: "Mentors", href: "/mentors" },
+    { name: "Sponsor", href: "/sponsor" },
+    { name: "School Districts", href: "/school-districts" },
     { name: "The Team", href: "/team" },
     { name: "Contact", href: "/contact" },
     { name: "Privacy Policy", href: "#" },
