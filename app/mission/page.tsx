@@ -22,7 +22,7 @@ export default function MissionPage() {
             
             <h1 className="font-serif text-4xl sm:text-5xl lg:text-6xl tracking-tight text-foreground text-balance leading-tight">
               <BlurText
-                text="Preparing Workers for the AI-Enabled Economy."
+                text="The Generation the AI Economy Can't Afford to Lose."
                 animateBy="words"
                 direction="top"
                 delay={80}

@@ -1,7 +1,6 @@
 "use client"
 
-import { useEffect, useRef, useState } from "react"
-import Script from "next/script"
+import { useState, useRef, useEffect } from "react"
 import Link from "next/link"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
@@ -15,27 +14,25 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { ArrowRight, ArrowLeft, Check, CheckCircle, Loader2, AlertCircle, ExternalLink } from "lucide-react"
+import { ArrowRight, ArrowLeft, Check, CheckCircle, Loader2, AlertCircle, ExternalLink, ShoppingCart, FlaskConical } from "lucide-react"
 
-// ─── Program data (replace with CMS / DB later) ───────────────────────────
-// ⚠️ REMOVE TEST_PROGRAM after confirming Square works end-to-end
-const TEST_PROGRAM = {
-  id: "test-payment",
-  phase: "TEST",
-  name: "⚠️ Test Payment – $0.01",
-  cohort: "Dev Only",
-  startDate: "N/A",
-  duration: "N/A",
-  ageRange: "N/A",
-  spotsLeft: 99,
-  price: 1, // 1 cent
-  priceDisplay: "$0.01",
-  description: "Remove this after confirming Square is working. Charges exactly $0.01 and runs through the full enrollment flow.",
-  comingSoon: false,
-}
-
+// ─── Program data ──────────────────────────────────────────────────────────
 const PROGRAMS = [
-  TEST_PROGRAM,
+  {
+    id: "test-payment",
+    phase: "TEST",
+    name: "⚠️ Test Payment – $1.00",
+    cohort: "Dev Only",
+    startDate: "N/A",
+    duration: "N/A",
+    ageRange: "N/A",
+    spotsLeft: 99,
+    price: 100,
+    priceDisplay: "$1.00",
+    description: "Dev-only test item. Charges $1.00 and runs through the full enrollment flow.",
+    comingSoon: false,
+    isBundle: false,
+  },
   {
     id: "ascendiq-bootcamp",
     phase: "DISCOVER",
@@ -45,13 +42,14 @@ const PROGRAMS = [
     duration: "6 weeks · Daily sessions",
     ageRange: "Ages 13–15",
     spotsLeft: 15,
-    price: 149500, // $1,495 limited-time in cents
-    priceOriginal: 299500, // $2,995 regular
+    price: 149500,
+    priceOriginal: 299500,
     priceDisplay: "$1,495",
     priceOriginalDisplay: "$2,995",
     description:
       "A hands-on summer cohort for students ages 13–15. Explore entrepreneurship, prototype a real idea, and present at demo day. The DISCOVER stage—where it all begins.",
     comingSoon: false,
+    isBundle: false,
   },
   {
     id: "startup-lab",
@@ -67,6 +65,7 @@ const PROGRAMS = [
     description:
       "Ongoing mentorship from ideation to launch. Ship a real product or service, practice your pitch, and deliver a portfolio-ready case study at demo day.",
     comingSoon: true,
+    isBundle: false,
   },
   {
     id: "skills-internships",
@@ -82,6 +81,7 @@ const PROGRAMS = [
     description:
       "Learn in-demand skills and earn your way into the workforce. Complete the program and get hired by a partner employer—or use what you built to launch your own venture.",
     comingSoon: true,
+    isBundle: false,
   },
   {
     id: "career-training",
@@ -97,27 +97,15 @@ const PROGRAMS = [
     description:
       "Structured transition from training to high-impact employment. Paired with a mentor from your target industry, plus career mapping and interview prep.",
     comingSoon: true,
-  },
-  {
-    id: "flex-bundle",
-    phase: "BUNDLE",
-    name: "AscendIQ Flex Bundle",
-    cohort: "Spring 2026",
-    startDate: "Flexible",
-    duration: "Choose 2–3 programs",
-    ageRange: "Varies by selection",
-    spotsLeft: 10,
-    price: 149900,
-    priceDisplay: "From $1,499",
-    description:
-      "Select any 2 or 3 programs and save $100. Build the right combination across Summer Startup Lab, Entrepreneurship Training, Apprenticeship Skill Building, and Mentoring & Coaching.",
-    comingSoon: false,
-    isFlexBundle: true as const,
+    isBundle: false,
   },
 ]
 
+// Programs available in the Flex Bundle sub-selector (excludes test-payment)
+const BUNDLE_PROGRAMS = PROGRAMS.filter((p) => p.id !== "test-payment")
+
 type Step = 1 | 2 | 3
-type Program = (typeof PROGRAMS)[number]
+type SelectionMode = "individual" | "bundle"
 
 export type EnrollInfo = {
   parentFirstName: string
@@ -168,16 +156,14 @@ const US_STATES = [
   "Wisconsin", "Wyoming", "District of Columbia",
 ]
 
-const SQUARE_APP_ID = process.env.NEXT_PUBLIC_SQUARE_APP_ID ?? ""
-const SQUARE_LOCATION_ID = process.env.NEXT_PUBLIC_SQUARE_LOCATION_ID ?? ""
-const SQUARE_SCRIPT =
-  process.env.NEXT_PUBLIC_SQUARE_ENVIRONMENT === "production"
-    ? "https://web.squarecdn.com/v1/square.js"
-    : "https://sandbox.web.squarecdn.com/v1/square.js"
+// ─── Helpers ───────────────────────────────────────────────────────────────
+function testTotalDisplay(itemCount: number) {
+  return `$${itemCount}.00`
+}
 
 // ─── Step indicator ────────────────────────────────────────────────────────
 function StepIndicator({ current }: { current: Step }) {
-  const steps = ["Choose Program", "Your Info", "Payment"]
+  const steps = ["Choose Programs", "Your Info", "Payment"]
   return (
     <div className="flex items-center gap-2 mb-12">
       {steps.map((label, i) => {
@@ -214,29 +200,76 @@ function StepIndicator({ current }: { current: Step }) {
   )
 }
 
-// ─── Step 1: Program selection ─────────────────────────────────────────────
-const REGULAR_PROGRAMS = PROGRAMS.filter((p) => !("isFlexBundle" in p && p.isFlexBundle))
-
-function ProgramStep({
-  selected,
-  onSelect,
-  onNext,
+// ─── Cart summary strip ────────────────────────────────────────────────────
+function CartSummary({
+  mode,
+  cartItems,
   bundleSelections,
-  onBundleChange,
 }: {
-  selected: Program | null
-  onSelect: (p: Program) => void
-  onNext: () => void
+  mode: SelectionMode | null
+  cartItems: string[]
   bundleSelections: string[]
-  onBundleChange: (ids: string[]) => void
 }) {
-  // Compute bundle price live
-  const bundleItems = REGULAR_PROGRAMS.filter((p) => bundleSelections.includes(p.id))
-  const bundleRawCents = bundleItems.reduce((sum, p) => sum + p.price, 0) - 10000
-  const bundleCents = Math.max(149900, bundleRawCents)
-  const bundlePriceDisplay = `$${(bundleCents / 100).toLocaleString("en-US", { minimumFractionDigits: 0 })}`
+  const items =
+    mode === "bundle"
+      ? BUNDLE_PROGRAMS.filter((p) => bundleSelections.includes(p.id))
+      : PROGRAMS.filter((p) => cartItems.includes(p.id))
 
-  const canContinue = !!selected && (!("isFlexBundle" in selected && selected.isFlexBundle) || bundleSelections.length >= 2)
+  if (items.length === 0) return null
+
+  const total = items.length
+
+  return (
+    <div className="mt-8 rounded-lg border border-primary/30 bg-primary/[0.03] p-5">
+      <div className="flex items-center gap-2 mb-4">
+        <ShoppingCart className="h-4 w-4 text-primary" />
+        <span className="text-sm font-semibold text-foreground">
+          Cart ({total} {total === 1 ? "item" : "items"})
+        </span>
+        <span className="ml-auto flex items-center gap-1.5 text-xs text-amber-600 dark:text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded-full font-medium">
+          <FlaskConical className="h-3 w-3" />
+          Test mode · $1 per item
+        </span>
+      </div>
+      <ul className="space-y-2">
+        {items.map((p) => (
+          <li key={p.id} className="flex items-center justify-between text-sm">
+            <span className="text-foreground">{p.name}</span>
+            <span className="text-amber-600 dark:text-amber-400 font-medium tabular-nums">$1.00</span>
+          </li>
+        ))}
+      </ul>
+      <div className="mt-3 pt-3 border-t border-border flex justify-between text-sm font-semibold">
+        <span className="text-foreground">Test total</span>
+        <span className="text-primary">{testTotalDisplay(total)}</span>
+      </div>
+    </div>
+  )
+}
+
+// ─── Step 1: Program selection (cart model) ────────────────────────────────
+function ProgramStep({
+  mode,
+  cartItems,
+  bundleSelections,
+  onToggleItem,
+  onBundleToggle,
+  onBundleSelectionChange,
+  onNext,
+}: {
+  mode: SelectionMode | null
+  cartItems: string[]
+  bundleSelections: string[]
+  onToggleItem: (id: string) => void
+  onBundleToggle: () => void
+  onBundleSelectionChange: (ids: string[]) => void
+  onNext: () => void
+}) {
+  const canContinue =
+    (mode === "individual" && cartItems.length > 0) ||
+    (mode === "bundle" && bundleSelections.length >= 2)
+
+  const individualPrograms = PROGRAMS.filter((p) => !p.isBundle)
 
   return (
     <div>
@@ -244,32 +277,32 @@ function ProgramStep({
         Open Enrollment
       </h1>
       <p className="text-muted-foreground mb-10">
-        Select a program to enroll. All programs include mentorship, curriculum, and portfolio support.
+        Add programs to your cart, or choose the Flex Bundle to mix and match.
       </p>
 
-      <div className="space-y-4 mb-10">
-        {PROGRAMS.map((program) => {
-          const isFlexBundle = "isFlexBundle" in program && program.isFlexBundle
+      {/* Individual programs */}
+      <div className="space-y-3 mb-6">
+        {individualPrograms.map((program) => {
+          const inCart = cartItems.includes(program.id)
+          const isTest = program.id === "test-payment"
+
           return (
-            <button
+            <div
               key={program.id}
-              type="button"
-              onClick={() => !program.comingSoon && onSelect(program)}
-              disabled={program.comingSoon}
-              className={`w-full text-left rounded-lg border p-6 transition-all duration-200 ${
+              className={`rounded-lg border p-5 transition-all duration-200 ${
                 program.comingSoon
-                  ? "border-border bg-muted/50 cursor-not-allowed opacity-75"
-                  : selected?.id === program.id
+                  ? "border-border bg-muted/50 opacity-60"
+                  : inCart
                   ? "border-primary bg-primary/[0.04] ring-1 ring-primary/30"
-                  : "border-border bg-card hover:border-primary/30"
+                  : "border-border bg-card"
               }`}
             >
               <div className="flex items-start justify-between gap-4">
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-3 flex-wrap mb-1">
-                    <h2 className="font-semibold text-foreground">{program.name}</h2>
+                  <div className="flex items-center gap-2 flex-wrap mb-1">
+                    <h2 className="font-semibold text-foreground text-sm">{program.name}</h2>
                     <span className="text-xs font-bold uppercase tracking-widest px-2 py-0.5 rounded-full bg-primary/10 text-primary">
-                      {"phase" in program ? program.phase : ""}
+                      {program.phase}
                     </span>
                     {program.comingSoon ? (
                       <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-muted text-muted-foreground">
@@ -286,120 +319,184 @@ function ProgramStep({
                       </span>
                     )}
                   </div>
-                  <p className="text-sm text-muted-foreground mb-3">{program.description}</p>
-                  <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
-                    <span>📅 {program.startDate}</span>
-                    <span>⏱ {program.duration}</span>
-                    <span>👤 {program.ageRange}</span>
-                  </div>
+                  <p className="text-xs text-muted-foreground mb-2">{program.description}</p>
+                  {!isTest && (
+                    <div className="flex flex-wrap gap-x-3 gap-y-0.5 text-xs text-muted-foreground">
+                      <span>📅 {program.startDate}</span>
+                      <span>⏱ {program.duration}</span>
+                      <span>👤 {program.ageRange}</span>
+                    </div>
+                  )}
                 </div>
-                <div className="shrink-0 text-right">
+
+                <div className="shrink-0 flex flex-col items-end gap-2">
                   {"priceOriginalDisplay" in program && program.priceOriginalDisplay ? (
-                    <>
-                      <div className="flex items-center gap-2 justify-end">
-                        <span className="font-bold text-xl text-muted-foreground line-through">
-                          {program.priceOriginalDisplay}
-                        </span>
-                        <span className="font-bold text-2xl text-primary">{program.priceDisplay}</span>
+                    <div className="text-right">
+                      <div className="flex items-center gap-1.5 justify-end">
+                        <span className="text-sm text-muted-foreground line-through">{program.priceOriginalDisplay}</span>
+                        <span className="font-bold text-lg text-primary">{program.priceDisplay}</span>
                       </div>
-                      <div className="text-xs text-primary font-medium">Limited-time price</div>
-                    </>
-                  ) : isFlexBundle && selected?.id === "flex-bundle" && bundleSelections.length >= 2 ? (
-                    <>
-                      <div className="font-bold text-2xl text-primary">{bundlePriceDisplay}</div>
-                      <div className="text-xs text-primary font-medium">save $100</div>
-                    </>
+                      <div className="text-xs text-primary font-medium">Limited-time</div>
+                    </div>
                   ) : (
-                    <>
-                      <div className="font-bold text-2xl text-foreground">{program.priceDisplay}</div>
+                    <div className="text-right">
+                      <div className="font-bold text-lg text-foreground">{program.priceDisplay}</div>
                       <div className="text-xs text-muted-foreground">per student</div>
-                    </>
+                    </div>
+                  )}
+
+                  {!program.comingSoon && (
+                    <Button
+                      size="sm"
+                      variant={inCart ? "default" : "outline"}
+                      onClick={() => onToggleItem(program.id)}
+                      className="text-xs h-8 px-3 shrink-0"
+                    >
+                      {inCart ? (
+                        <>
+                          <Check className="mr-1 h-3 w-3" />
+                          In Cart
+                        </>
+                      ) : (
+                        "Add to Cart"
+                      )}
+                    </Button>
                   )}
                 </div>
               </div>
-
-              {/* Flex Bundle sub-program selector */}
-              {isFlexBundle && selected?.id === "flex-bundle" && (
-                <div
-                  className="mt-4 pt-4 border-t border-border"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-3">
-                    Select 2–3 programs to bundle
-                  </p>
-                  <div className="space-y-3">
-                    {REGULAR_PROGRAMS.map((p) => {
-                      const checked = bundleSelections.includes(p.id)
-                      const atMax = bundleSelections.length >= 3 && !checked
-                      return (
-                        <label
-                          key={p.id}
-                          className={`flex items-center justify-between gap-4 ${atMax ? "opacity-40" : "cursor-pointer"}`}
-                        >
-                          <div className="flex items-center gap-3">
-                            <Checkbox
-                              checked={checked}
-                              disabled={atMax}
-                              onCheckedChange={(v) => {
-                                if (v) onBundleChange([...bundleSelections, p.id])
-                                else onBundleChange(bundleSelections.filter((id) => id !== p.id))
-                              }}
-                            />
-                            <span className="text-sm text-foreground">{p.name}</span>
-                            <span className="text-xs font-bold text-muted-foreground">{"phase" in p ? p.phase : ""}</span>
-                          </div>
-                          <span className="text-sm font-medium text-foreground shrink-0">{p.priceDisplay}</span>
-                        </label>
-                      )
-                    })}
-                  </div>
-                  {bundleSelections.length >= 2 ? (
-                    <div className="mt-4 pt-3 border-t border-border flex justify-between text-sm font-semibold">
-                      <span className="text-foreground">
-                        Bundle total{" "}
-                        <span className="font-normal text-muted-foreground text-xs">(save $100)</span>
-                      </span>
-                      <span className="text-primary">{bundlePriceDisplay}</span>
-                    </div>
-                  ) : (
-                    <p className="mt-3 text-xs text-muted-foreground">Select at least 2 programs to continue.</p>
-                  )}
-                </div>
-              )}
-            </button>
+            </div>
           )
         })}
       </div>
 
-      <Button
-        size="lg"
-        disabled={!canContinue}
-        onClick={onNext}
-        className="w-full sm:w-auto h-12 px-8"
+      {/* Flex Bundle card */}
+      <div
+        className={`rounded-lg border p-5 transition-all duration-200 cursor-pointer ${
+          mode === "bundle"
+            ? "border-primary bg-primary/[0.04] ring-1 ring-primary/30"
+            : "border-border bg-card hover:border-primary/30"
+        }`}
+        onClick={onBundleToggle}
       >
-        Continue
-        <ArrowRight className="ml-2 h-4 w-4" />
-      </Button>
+        <div className="flex items-start justify-between gap-4">
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 flex-wrap mb-1">
+              <h2 className="font-semibold text-foreground text-sm">AscendIQ Flex Bundle</h2>
+              <span className="text-xs font-bold uppercase tracking-widest px-2 py-0.5 rounded-full bg-primary/10 text-primary">
+                BUNDLE
+              </span>
+              <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-muted text-muted-foreground/70">
+                Spring 2026
+              </span>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Select any 2 or 3 programs and save $100. Build the right combination across our full program suite.
+            </p>
+          </div>
+          <div className="shrink-0 text-right">
+            <div className="font-bold text-lg text-foreground">From $1,499</div>
+            <div className="text-xs text-muted-foreground">per student</div>
+          </div>
+        </div>
+
+        {/* Bundle sub-selector — only shown when bundle mode is active */}
+        {mode === "bundle" && (
+          <div
+            className="mt-4 pt-4 border-t border-border"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-3">
+              Select 2–3 programs to bundle
+            </p>
+            <div className="space-y-3">
+              {BUNDLE_PROGRAMS.map((p) => {
+                const checked = bundleSelections.includes(p.id)
+                const atMax = bundleSelections.length >= 3 && !checked
+                return (
+                  <label
+                    key={p.id}
+                    className={`flex items-center justify-between gap-4 ${atMax ? "opacity-40" : "cursor-pointer"}`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <Checkbox
+                        checked={checked}
+                        disabled={atMax}
+                        onCheckedChange={(v) => {
+                          if (v) onBundleSelectionChange([...bundleSelections, p.id])
+                          else onBundleSelectionChange(bundleSelections.filter((id) => id !== p.id))
+                        }}
+                      />
+                      <span className="text-sm text-foreground">{p.name}</span>
+                      <span className="text-xs font-bold text-muted-foreground">{p.phase}</span>
+                    </div>
+                    <span className="text-sm font-medium text-foreground shrink-0">{p.priceDisplay}</span>
+                  </label>
+                )
+              })}
+            </div>
+            {bundleSelections.length >= 2 ? (
+              <div className="mt-4 pt-3 border-t border-border flex justify-between text-sm font-semibold">
+                <span className="text-foreground">
+                  Bundle total{" "}
+                  <span className="font-normal text-muted-foreground text-xs">(save $100)</span>
+                </span>
+                <span className="text-primary">
+                  ${(Math.max(
+                    149900,
+                    bundleSelections.reduce((s, id) => s + (BUNDLE_PROGRAMS.find((p) => p.id === id)?.price ?? 0), 0) - 10000
+                  ) / 100).toLocaleString("en-US", { minimumFractionDigits: 0 })}
+                </span>
+              </div>
+            ) : (
+              <p className="mt-3 text-xs text-muted-foreground">Select at least 2 programs to continue.</p>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* Cart summary */}
+      <CartSummary mode={mode} cartItems={cartItems} bundleSelections={bundleSelections} />
+
+      <div className="mt-8">
+        <Button
+          size="lg"
+          disabled={!canContinue}
+          onClick={onNext}
+          className="w-full sm:w-auto h-12 px-8"
+        >
+          Continue
+          <ArrowRight className="ml-2 h-4 w-4" />
+        </Button>
+      </div>
     </div>
   )
 }
 
 // ─── Step 2: Contact / student info ───────────────────────────────────────
 function InfoStep({
-  program,
+  mode,
+  cartItems,
+  bundleSelections,
   info,
   onChange,
   onCheckboxChange,
   onBack,
   onNext,
 }: {
-  program: Program
+  mode: SelectionMode
+  cartItems: string[]
+  bundleSelections: string[]
   info: EnrollInfo
   onChange: (key: keyof EnrollInfo, value: string) => void
   onCheckboxChange: (key: keyof EnrollInfo, value: boolean) => void
   onBack: () => void
   onNext: () => void
 }) {
+  const items =
+    mode === "bundle"
+      ? BUNDLE_PROGRAMS.filter((p) => bundleSelections.includes(p.id))
+      : PROGRAMS.filter((p) => cartItems.includes(p.id))
+
   const valid =
     info.parentFirstName.trim() &&
     info.parentLastName.trim() &&
@@ -415,13 +512,20 @@ function InfoStep({
 
   return (
     <div>
-      {/* Selected program summary */}
-      <div className="flex items-center justify-between rounded-lg border border-border bg-card px-5 py-4 mb-10">
-        <div>
-          <div className="font-medium text-foreground text-sm">{program.name}</div>
-          <div className="text-xs text-muted-foreground mt-0.5">{program.startDate} · {program.duration}</div>
+      {/* Cart summary header */}
+      <div className="rounded-lg border border-border bg-card px-5 py-4 mb-10 space-y-2">
+        <div className="flex items-center justify-between">
+          <div className="font-medium text-foreground text-sm">
+            {mode === "bundle" ? "Flex Bundle" : `Cart · ${items.length} program${items.length !== 1 ? "s" : ""}`}
+          </div>
+          <div className="flex items-center gap-1.5 text-xs text-amber-600 dark:text-amber-400 font-medium">
+            <FlaskConical className="h-3 w-3" />
+            Test total: {testTotalDisplay(items.length)}
+          </div>
         </div>
-        <div className="font-bold text-foreground">{program.priceDisplay}</div>
+        <div className="text-xs text-muted-foreground">
+          {items.map((p) => p.name).join(" · ")}
+        </div>
       </div>
 
       <h2 className="font-serif text-2xl sm:text-3xl tracking-tight text-foreground mb-8">
@@ -664,78 +768,113 @@ function InfoStep({
   )
 }
 
-// ─── Step 3: Payment ───────────────────────────────────────────────────────
+// ─── Step 3: Payment ────────────────────────────────────────────────────────
+type SquareCard = {
+  attach: (selector: string) => Promise<void>
+  tokenize: () => Promise<{ token?: string; errors?: Array<{ message: string }> }>
+  destroy?: () => void
+}
+
 function PaymentStep({
-  program,
+  mode,
+  cartItems,
+  bundleSelections,
   info,
   onBack,
   onSuccess,
 }: {
-  program: Program
+  mode: SelectionMode
+  cartItems: string[]
+  bundleSelections: string[]
   info: EnrollInfo
   onBack: () => void
   onSuccess: (paymentId: string, receiptUrl?: string) => void
 }) {
-  const cardRef = useRef<Window["Square"] extends infer S ? (S extends { payments(...args: unknown[]): Promise<infer P> } ? (P extends { card(...args: unknown[]): Promise<infer C> } ? C : never) : never) : never>(null)
-  const [sdkReady, setSdkReady] = useState(false)
-  const [cardReady, setCardReady] = useState(false)
-  const [status, setStatus] = useState<"idle" | "loading" | "error">("idle")
-  const [errorMsg, setErrorMsg] = useState("")
+  const [formStatus, setFormStatus] = useState<"initializing" | "ready" | "processing" | "load-error">("initializing")
+  const [paymentError, setPaymentError] = useState("")
+  const cardRef = useRef<SquareCard | null>(null)
 
-  // Initialize Square card form once SDK is ready
+  const items =
+    mode === "bundle"
+      ? BUNDLE_PROGRAMS.filter((p) => bundleSelections.includes(p.id))
+      : PROGRAMS.filter((p) => cartItems.includes(p.id))
+
+  const testTotal = testTotalDisplay(items.length)
+
   useEffect(() => {
-    if (!sdkReady || !window.Square) return
-
-    let mounted = true
+    let destroyed = false
+    let card: SquareCard | null = null
 
     async function initCard() {
-      const payments = await window.Square!.payments(SQUARE_APP_ID, SQUARE_LOCATION_ID)
-      const card = await payments.card()
-      await card.attach("#sq-card-container")
-      if (mounted) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        ;(cardRef as any).current = card
-        setCardReady(true)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const sq = (window as any).Square
+      if (!sq || destroyed) return
+      try {
+        const payments = sq.payments(
+          process.env.NEXT_PUBLIC_SQUARE_APP_ID,
+          process.env.NEXT_PUBLIC_SQUARE_LOCATION_ID,
+        )
+        card = await payments.card()
+        if (destroyed) { card.destroy?.(); return }
+        await card.attach("#square-card-container")
+        cardRef.current = card
+        setFormStatus("ready")
+      } catch {
+        if (!destroyed) setFormStatus("load-error")
       }
     }
 
-    initCard().catch(console.error)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    if ((window as any).Square) {
+      initCard()
+    } else {
+      const src = process.env.NEXT_PUBLIC_SQUARE_ENVIRONMENT === "production"
+        ? "https://web.squarecdn.com/v1/square.js"
+        : "https://sandbox.web.squarecdn.com/v1/square.js"
+      const script = document.createElement("script")
+      script.src = src
+      script.onload = initCard
+      script.onerror = () => { if (!destroyed) setFormStatus("load-error") }
+      document.head.appendChild(script)
+    }
 
     return () => {
-      mounted = false
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      ;(cardRef as any).current?.destroy().catch(() => null)
+      destroyed = true
+      card?.destroy?.()
+      cardRef.current = null
     }
-  }, [sdkReady])
+  }, [])
 
   const handlePay = async () => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const card = (cardRef as any).current
-    if (!card) return
-
-    setStatus("loading")
-    setErrorMsg("")
-
-    const result = await card.tokenize()
-    if (result.status !== "OK" || !result.token) {
-      setStatus("error")
-      setErrorMsg(result.errors?.[0]?.message ?? "Card tokenization failed.")
-      return
-    }
+    if (!cardRef.current || formStatus !== "ready") return
+    setFormStatus("processing")
+    setPaymentError("")
 
     try {
-      const res = await fetch("/api/enroll", {
+      const result = await cardRef.current.tokenize()
+      if (!result.token) {
+        setPaymentError(result.errors?.[0]?.message ?? "Please check your card details and try again.")
+        setFormStatus("ready")
+        return
+      }
+
+      const programId = mode === "bundle" ? "flex-bundle" : "cart"
+      const programName = mode === "bundle"
+        ? `Flex Bundle: ${items.map((p) => p.name).join(", ")}`
+        : items.map((p) => p.name).join(", ")
+
+      const res = await fetch("/api/enroll/pay", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           sourceId: result.token,
-          programId: program.id,
-          programName: program.name,
-          amount: program.price,
+          programId,
+          programName,
+          bundleSelections: mode === "bundle" ? bundleSelections : [],
+          cartItems: mode === "individual" ? cartItems : [],
           name: `${info.parentFirstName} ${info.parentLastName}`.trim(),
           email: info.email,
           phone: info.studentPhone || "",
-          studentPhone: info.studentPhone,
           studentName: `${info.studentFirstName} ${info.studentLastName}`.trim(),
           parentFirstName: info.parentFirstName,
           parentLastName: info.parentLastName,
@@ -758,34 +897,33 @@ function PaymentStep({
       if (!res.ok) throw new Error(data.error ?? "Payment failed.")
       onSuccess(data.paymentId, data.receiptUrl)
     } catch (err) {
-      setStatus("error")
-      setErrorMsg(err instanceof Error ? err.message : "Payment failed. Please try again.")
-    } finally {
-      if (status !== "idle") setStatus("idle")
+      setPaymentError(err instanceof Error ? err.message : "Payment failed. Please try again.")
+      setFormStatus("ready")
     }
   }
 
   return (
     <div>
-      {/* Load Square SDK */}
-      <Script src={SQUARE_SCRIPT} onLoad={() => setSdkReady(true)} />
-
-      {/* Program + order summary */}
-      <div className="rounded-lg border border-border bg-card px-5 py-4 mb-10 space-y-3">
-        <div className="flex items-center justify-between">
-          <div>
-            <div className="font-medium text-foreground text-sm">{program.name}</div>
-            <div className="text-xs text-muted-foreground mt-0.5">{program.startDate}</div>
-          </div>
-          <div className="font-bold text-foreground">{program.priceDisplay}</div>
+      {/* Order summary */}
+      <div className="rounded-lg border border-border bg-card px-5 py-4 mb-10 space-y-2">
+        <div className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-3">
+          {mode === "bundle" ? "Flex Bundle" : "Cart"}
         </div>
-        <div className="border-t border-border pt-3 flex justify-between text-sm">
+        {items.map((p) => (
+          <div key={p.id} className="flex items-center justify-between text-sm">
+            <span className="text-foreground">{p.name}</span>
+            <span className="text-amber-600 dark:text-amber-400 font-medium">$1.00 (test)</span>
+          </div>
+        ))}
+        <div className="border-t border-border pt-3 mt-3 flex justify-between text-sm">
           <span className="text-muted-foreground">Enrolling</span>
-          <span className="font-medium text-foreground">{`${info.studentFirstName} ${info.studentLastName}`.trim() || `${info.parentFirstName} ${info.parentLastName}`.trim()}</span>
+          <span className="font-medium text-foreground">
+            {`${info.studentFirstName} ${info.studentLastName}`.trim() || `${info.parentFirstName} ${info.parentLastName}`.trim()}
+          </span>
         </div>
         <div className="flex justify-between text-sm font-semibold">
-          <span>Total</span>
-          <span>{program.priceDisplay}</span>
+          <span>Total (test)</span>
+          <span className="text-primary">{testTotal}</span>
         </div>
       </div>
 
@@ -793,56 +931,66 @@ function PaymentStep({
         Payment
       </h2>
 
-      {/* Square card container */}
-      <div className="mb-6">
-        <label className="text-sm font-medium text-foreground block mb-3">
-          Card Details
-        </label>
-        <div
-          id="sq-card-container"
-          className={`min-h-[100px] rounded-lg border border-border bg-secondary p-3 transition-opacity ${
-            cardReady ? "opacity-100" : "opacity-0"
-          }`}
-        />
-        {!cardReady && (
-          <div className="flex items-center gap-2 text-sm text-muted-foreground mt-3">
-            <Loader2 className="h-4 w-4 animate-spin" />
+      <div className="mb-6 flex items-center gap-2 text-xs text-amber-600 dark:text-amber-400 bg-amber-500/10 px-3 py-2 rounded-md font-medium">
+        <FlaskConical className="h-3.5 w-3.5 shrink-0" />
+        Test mode — your card will be charged {testTotal} (not the displayed program prices)
+      </div>
+
+      {/* Square embedded card form */}
+      <div className="mb-2">
+        {formStatus === "initializing" && (
+          <div className="flex items-center gap-2 text-sm text-muted-foreground h-14">
+            <Loader2 className="h-4 w-4 animate-spin shrink-0" />
             Loading secure payment form…
           </div>
         )}
+        {formStatus === "load-error" && (
+          <div className="flex items-center gap-2 text-sm text-destructive h-14">
+            <AlertCircle className="h-4 w-4 shrink-0" />
+            Failed to load payment form. Please refresh the page.
+          </div>
+        )}
+        <div
+          id="square-card-container"
+          className={formStatus === "initializing" || formStatus === "load-error" ? "hidden" : ""}
+        />
       </div>
 
-      <p className="text-xs text-muted-foreground mb-6">
-        Payments are processed securely by Square. AscendIQ never stores your card details.
-      </p>
-
-      {status === "error" && (
+      {paymentError && (
         <div className="flex items-center gap-2 text-sm text-destructive mb-4">
           <AlertCircle className="h-4 w-4 shrink-0" />
-          {errorMsg}
+          {paymentError}
         </div>
       )}
 
+      <p className="text-xs text-muted-foreground mb-6">
+        Your payment is processed securely by Square. We never store your card details.
+      </p>
+
       <div className="flex gap-3">
-        <Button variant="outline" size="lg" onClick={onBack} className="h-12 px-6" disabled={status === "loading"}>
+        <Button
+          variant="outline"
+          size="lg"
+          onClick={onBack}
+          disabled={formStatus === "processing"}
+          className="h-12 px-6"
+        >
           <ArrowLeft className="mr-2 h-4 w-4" />
           Back
         </Button>
         <Button
           size="lg"
           onClick={handlePay}
-          disabled={!cardReady || status === "loading"}
+          disabled={formStatus !== "ready"}
           className="h-12 px-8 flex-1 sm:flex-none"
         >
-          {status === "loading" ? (
+          {formStatus === "processing" ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               Processing…
             </>
           ) : (
-            <>
-              Pay {program.priceDisplay}
-            </>
+            `Pay ${testTotal} (test)`
           )}
         </Button>
       </div>
@@ -852,11 +1000,11 @@ function PaymentStep({
 
 // ─── Success ───────────────────────────────────────────────────────────────
 function SuccessView({
-  program,
+  enrolledNames,
   paymentId,
   receiptUrl,
 }: {
-  program: Program
+  enrolledNames: string
   paymentId: string
   receiptUrl?: string
 }) {
@@ -869,7 +1017,7 @@ function SuccessView({
         You&apos;re enrolled!
       </h2>
       <p className="text-muted-foreground max-w-md mx-auto mb-2">
-        <strong className="text-foreground">{program.name}</strong> · {program.startDate}
+        <strong className="text-foreground">{enrolledNames}</strong>
       </p>
       <p className="text-muted-foreground text-sm mb-8">
         A confirmation email is on its way. We&apos;ll reach out within 24 hours with next steps.
@@ -900,29 +1048,43 @@ function SuccessView({
 // ─── Page ──────────────────────────────────────────────────────────────────
 export default function EnrollPage() {
   const [step, setStep] = useState<Step>(1)
-  const [selectedProgram, setSelectedProgram] = useState<Program | null>(null)
+  const [mode, setMode] = useState<SelectionMode | null>(null)
+  const [cartItems, setCartItems] = useState<string[]>([])
   const [bundleSelections, setBundleSelections] = useState<string[]>([])
   const [info, setInfo] = useState<EnrollInfo>(DEFAULT_ENROLL_INFO)
   const [result, setResult] = useState<{ paymentId: string; receiptUrl?: string } | null>(null)
 
   const handleInfoChange = (key: keyof EnrollInfo, value: string) =>
     setInfo((prev) => ({ ...prev, [key]: value }))
-
   const handleCheckboxChange = (key: keyof EnrollInfo, value: boolean) =>
     setInfo((prev) => ({ ...prev, [key]: value }))
 
-  // For flex bundle: compute resolved price and display name
-  const effectiveProgram = (() => {
-    if (!selectedProgram || !("isFlexBundle" in selectedProgram && selectedProgram.isFlexBundle)) {
-      return selectedProgram
+  // Toggle individual program in/out of cart. Switches to individual mode.
+  const handleToggleItem = (id: string) => {
+    setMode("individual")
+    setBundleSelections([]) // clear bundle when switching to individual
+    setCartItems((prev) =>
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
+    )
+  }
+
+  // Activate/deactivate bundle mode (mutually exclusive with individual cart)
+  const handleBundleToggle = () => {
+    if (mode === "bundle") {
+      setMode(null)
+      setBundleSelections([])
+    } else {
+      setMode("bundle")
+      setCartItems([]) // clear individual cart when switching to bundle
     }
-    if (bundleSelections.length < 2) return selectedProgram
-    const items = REGULAR_PROGRAMS.filter((p) => bundleSelections.includes(p.id))
-    const rawCents = items.reduce((sum, p) => sum + p.price, 0) - 10000
-    const price = Math.max(149900, rawCents)
-    const priceDisplay = `$${(price / 100).toLocaleString("en-US", { minimumFractionDigits: 0 })}`
-    const name = `Flex Bundle: ${items.map((p) => p.name).join(" + ")}`
-    return { ...selectedProgram, price, priceDisplay, name }
+  }
+
+  const enrolledNames = (() => {
+    const items =
+      mode === "bundle"
+        ? BUNDLE_PROGRAMS.filter((p) => bundleSelections.includes(p.id))
+        : PROGRAMS.filter((p) => cartItems.includes(p.id))
+    return items.map((p) => p.name).join(", ")
   })()
 
   return (
@@ -937,35 +1099,38 @@ export default function EnrollPage() {
 
           {!result && <StepIndicator current={step} />}
 
-          {result && effectiveProgram ? (
+          {result ? (
             <SuccessView
-              program={effectiveProgram}
+              enrolledNames={enrolledNames}
               paymentId={result.paymentId}
               receiptUrl={result.receiptUrl}
             />
           ) : step === 1 ? (
             <ProgramStep
-              selected={selectedProgram}
-              onSelect={(p) => {
-                setSelectedProgram(p)
-                if (!("isFlexBundle" in p && p.isFlexBundle)) setBundleSelections([])
-              }}
-              onNext={() => setStep(2)}
+              mode={mode}
+              cartItems={cartItems}
               bundleSelections={bundleSelections}
-              onBundleChange={setBundleSelections}
+              onToggleItem={handleToggleItem}
+              onBundleToggle={handleBundleToggle}
+              onBundleSelectionChange={(ids) => setBundleSelections(ids)}
+              onNext={() => setStep(2)}
             />
-          ) : step === 2 && effectiveProgram ? (
+          ) : step === 2 && mode ? (
             <InfoStep
-              program={effectiveProgram}
+              mode={mode}
+              cartItems={cartItems}
+              bundleSelections={bundleSelections}
               info={info}
               onChange={handleInfoChange}
               onCheckboxChange={handleCheckboxChange}
               onBack={() => setStep(1)}
               onNext={() => setStep(3)}
             />
-          ) : step === 3 && effectiveProgram ? (
+          ) : step === 3 && mode ? (
             <PaymentStep
-              program={effectiveProgram}
+              mode={mode}
+              cartItems={cartItems}
+              bundleSelections={bundleSelections}
               info={info}
               onBack={() => setStep(2)}
               onSuccess={(paymentId, receiptUrl) => setResult({ paymentId, receiptUrl })}

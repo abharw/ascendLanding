@@ -10,7 +10,7 @@ export function AboutSection() {
               About AscendIQ
             </p>
             <h2 className="font-bold text-3xl sm:text-4xl lg:text-5xl tracking-tight text-foreground text-balance leading-tight">
-              Building a Sustainable Workforce for an AI-Enabled Economy.
+              Turning Potential Into Practical Economic Capability.
             </h2>
           </div>
 

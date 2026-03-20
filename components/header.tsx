@@ -9,12 +9,9 @@ import { Button } from "@/components/ui/button"
 const navLinks = [
   { label: "Programs", href: "/programs" },
   { label: "Impact", href: "/impact" },
-  { label: "Community", href: "/community" },
-  { label: "Mentors", href: "/mentors" },
   { label: "Sponsor", href: "/sponsor" },
   { label: "The Team", href: "/team" },
   { label: "Contact", href: "/contact" },
-  { label: "Enroll", href: "/enroll" },
 ]
 
 export function Header() {
@@ -55,7 +52,7 @@ export function Header() {
 
         <div className="hidden lg:flex lg:flex-1 lg:justify-end">
           <Button asChild className="bg-primary text-primary-foreground hover:bg-primary/90">
-            <Link href="/contact">Get Started</Link>
+            <Link href="/enroll">Enroll Now</Link>
           </Button>
         </div>
       </nav>
@@ -95,8 +92,8 @@ export function Header() {
                 </div>
                 <div className="py-6">
                   <Button asChild className="w-full bg-primary text-primary-foreground hover:bg-primary/90">
-                    <Link href="/contact" onClick={() => setMobileMenuOpen(false)}>
-                      Get Started
+                    <Link href="/enroll" onClick={() => setMobileMenuOpen(false)}>
+                      Enroll Now
                     </Link>
                   </Button>
                 </div>

@@ -28,7 +28,7 @@ export function HeroSection() {
         </div>
 
         <p className="mt-6 text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-          Hands-on training and proven apprenticeship models—building the workforce our economy needs.
+          Real projects, real mentorship, and proven apprenticeship pathways—for schools, families, and employers.
         </p>
 
         <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">

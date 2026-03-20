@@ -1,5 +1,5 @@
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb"
-import { DynamoDBDocumentClient, PutCommand } from "@aws-sdk/lib-dynamodb"
+import { DynamoDBDocumentClient, GetCommand, PutCommand, UpdateCommand, QueryCommand } from "@aws-sdk/lib-dynamodb"
 
 const tableName = process.env.DYNAMODB_ENROLLMENTS_TABLE
 
@@ -65,4 +65,75 @@ export async function saveEnrollment(record: Omit<EnrollmentRecord, "id" | "crea
     })
   )
   return item
+}
+
+export async function getEnrollment(id: string): Promise<EnrollmentRecord | null> {
+  if (!tableName) return null
+  const res = await docClient.send(
+    new GetCommand({
+      TableName: tableName,
+      Key: { id },
+    })
+  )
+  return (res.Item as EnrollmentRecord) ?? null
+}
+
+// Looks up an enrollment by squarePaymentId using a GSI named "squarePaymentId-index"
+// You must add this GSI to your DynamoDB table for this to work.
+export async function getEnrollmentByPaymentId(squarePaymentId: string): Promise<EnrollmentRecord | null> {
+  if (!tableName) return null
+  try {
+    const res = await docClient.send(
+      new QueryCommand({
+        TableName: tableName,
+        IndexName: "squarePaymentId-index",
+        KeyConditionExpression: "squarePaymentId = :pid",
+        ExpressionAttributeValues: { ":pid": squarePaymentId },
+        Limit: 1,
+      })
+    )
+    return (res.Items?.[0] as EnrollmentRecord) ?? null
+  } catch {
+    return null
+  }
+}
+
+export async function updateEnrollment(
+  id: string,
+  updates: Partial<Pick<EnrollmentRecord, "squarePaymentId" | "receiptUrl" | "lmsSyncedAt">>
+): Promise<EnrollmentRecord | null> {
+  if (!tableName) return null
+  const updateExpr: string[] = []
+  const exprNames: Record<string, string> = {}
+  const exprValues: Record<string, unknown> = {}
+
+  if (updates.squarePaymentId !== undefined) {
+    updateExpr.push("#sq = :sq")
+    exprNames["#sq"] = "squarePaymentId"
+    exprValues[":sq"] = updates.squarePaymentId
+  }
+  if (updates.receiptUrl !== undefined) {
+    updateExpr.push("#rcpt = :rcpt")
+    exprNames["#rcpt"] = "receiptUrl"
+    exprValues[":rcpt"] = updates.receiptUrl
+  }
+  if (updates.lmsSyncedAt !== undefined) {
+    updateExpr.push("#lms = :lms")
+    exprNames["#lms"] = "lmsSyncedAt"
+    exprValues[":lms"] = updates.lmsSyncedAt
+  }
+
+  if (updateExpr.length === 0) return getEnrollment(id)
+
+  const res = await docClient.send(
+    new UpdateCommand({
+      TableName: tableName,
+      Key: { id },
+      UpdateExpression: "SET " + updateExpr.join(", "),
+      ExpressionAttributeNames: exprNames,
+      ExpressionAttributeValues: exprValues,
+      ReturnValues: "ALL_NEW",
+    })
+  )
+  return (res.Attributes as EnrollmentRecord) ?? null
 }

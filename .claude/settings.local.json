@@ -4,7 +4,8 @@
       "Bash(grep -r \"animate-accordion\" /c/Users/aravb/Desktop/Code/motherboard/motherboardLanding --include=\"*.ts\" --include=\"*.tsx\" --include=\"*.js\" --include=\"*.jsx\" --include=\"*.css\" 2>/dev/null | head -20)",
       "Bash(cd \"C:\\\\Users\\\\aravb\\\\Desktop\\\\Code\\\\motherboard\\\\motherboardLanding\" && npm install resend 2>&1 | tail -5)",
       "Bash(npm install:*)",
-      "Bash(pnpm add:*)"
+      "Bash(pnpm add:*)",
+      "WebFetch(domain:developer.squareup.com)"
     ]
   }
 }

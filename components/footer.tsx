@@ -13,10 +13,7 @@ const navigation = {
   company: [
     { name: "Impact", href: "/impact" },
     { name: "Mission", href: "/mission" },
-    { name: "Community", href: "/community" },
-    { name: "Mentors", href: "/mentors" },
     { name: "Sponsor", href: "/sponsor" },
-    { name: "School Districts", href: "/school-districts" },
     { name: "The Team", href: "/team" },
     { name: "Contact", href: "/contact" },
     { name: "Privacy Policy", href: "#" },
