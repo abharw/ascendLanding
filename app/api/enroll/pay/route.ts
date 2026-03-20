@@ -63,6 +63,20 @@ function computeAmount(
 }
 
 export async function POST(req: NextRequest) {
+  console.log("[pay] route called, env check:", {
+    hasToken: !!process.env.SQUARE_ACCESS_TOKEN,
+    env: process.env.SQUARE_ENVIRONMENT,
+    locationId: process.env.SQUARE_LOCATION_ID,
+  })
+  try {
+    return await handlePay(req)
+  } catch (err) {
+    console.error("[pay] unhandled error:", err)
+    return NextResponse.json({ error: "Internal server error", detail: String(err) }, { status: 500 })
+  }
+}
+
+async function handlePay(req: NextRequest) {
   let body: {
     sourceId?: string
     programId?: string

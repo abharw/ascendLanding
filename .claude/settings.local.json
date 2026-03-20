@@ -5,7 +5,11 @@
       "Bash(cd \"C:\\\\Users\\\\aravb\\\\Desktop\\\\Code\\\\motherboard\\\\motherboardLanding\" && npm install resend 2>&1 | tail -5)",
       "Bash(npm install:*)",
       "Bash(pnpm add:*)",
-      "WebFetch(domain:developer.squareup.com)"
+      "WebFetch(domain:developer.squareup.com)",
+      "Bash(git rm:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)"
     ]
   }
 }
