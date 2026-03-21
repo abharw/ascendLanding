@@ -3,7 +3,7 @@
 import Link from "next/link"
 import Image from "next/image"
 import { useState } from "react"
-import { Menu, X } from "lucide-react"
+import { List, X } from "@phosphor-icons/react"
 import { Button } from "@/components/ui/button"
 
 const navLinks = [
@@ -34,7 +34,7 @@ export function Header() {
             onClick={() => setMobileMenuOpen(true)}
           >
             <span className="sr-only">Open main menu</span>
-            <Menu className="h-6 w-6" aria-hidden="true" />
+            <List className="size-6" aria-hidden="true" />
           </button>
         </div>
 
@@ -73,7 +73,7 @@ export function Header() {
                 onClick={() => setMobileMenuOpen(false)}
               >
                 <span className="sr-only">Close menu</span>
-                <X className="h-6 w-6" aria-hidden="true" />
+                <X className="size-6" aria-hidden="true" />
               </button>
             </div>
             <div className="mt-6 flow-root">

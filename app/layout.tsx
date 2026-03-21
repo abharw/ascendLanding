@@ -1,12 +1,12 @@
 import type { Metadata } from 'next'
-import { Montserrat } from 'next/font/google'
+import { Inter } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import { CartProvider } from '@/context/cart'
 import './globals.css'
 
-const montserrat = Montserrat({ 
+const inter = Inter({ 
   subsets: ["latin"],
-  variable: '--font-montserrat',
+  variable: '--font-inter',
   display: 'swap',
 });
 
@@ -30,7 +30,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${montserrat.variable} font-sans antialiased text-foreground bg-background`}>
+      <body className={`${inter.variable} font-sans antialiased text-foreground bg-background`}>
         <CartProvider>
           {children}
         </CartProvider>

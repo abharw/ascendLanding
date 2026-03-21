@@ -4,7 +4,7 @@ import Link from "next/link"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { Button } from "@/components/ui/button"
-import { Mail } from "lucide-react"
+import { Envelope } from "@phosphor-icons/react"
 import AnimatedContent from "@/components/AnimatedContent"
 import BlurText from "@/components/BlurText"
 
@@ -106,7 +106,7 @@ export default function MissionPage() {
               </Link>
               <Button asChild variant="outline" className="border-border hover:bg-secondary">
                 <a href="mailto:info@ascendiq.com">
-                  <Mail className="mr-2 h-4 w-4" />
+                  <Envelope className="mr-2 size-4" />
                   info@ascendiq.com
                 </a>
               </Button>

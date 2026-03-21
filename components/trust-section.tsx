@@ -1,6 +1,6 @@
 "use client"
 
-import { Quote } from "lucide-react"
+import { Quotes } from "@phosphor-icons/react"
 import AnimatedContent from "@/components/AnimatedContent"
 
 const testimonials = [
@@ -55,7 +55,7 @@ export function TrustSection() {
               className="h-full"
             >
               <div className="relative bg-card border border-border rounded-lg p-8 lg:p-10 h-full">
-                <Quote className="h-10 w-10 text-primary/30 mb-6" />
+                <Quotes className="size-10 text-primary/30 mb-6" />
 
                 <blockquote className="text-lg text-foreground leading-relaxed mb-8">
                   &ldquo;{testimonial.quote}&rdquo;

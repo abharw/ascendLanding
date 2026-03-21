@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button"
-import { Users, Briefcase, Award, ArrowUpRight } from "lucide-react"
+import { Users, Briefcase, Award } from "@phosphor-icons/react"
 
 const networkTypes = [
   {
@@ -50,7 +50,7 @@ export function NetworkSection() {
               className="group relative bg-background/5 border border-background/10 rounded-lg p-8 lg:p-10 hover:bg-background/10 transition-all duration-300"
             >
               <div className="mb-6 inline-flex items-center justify-center w-12 h-12 rounded-lg bg-primary/20">
-                <type.icon className="h-6 w-6 text-primary" />
+                <type.icon className="size-6 text-primary" />
               </div>
               
               <p className="text-sm uppercase font-semibold tracking-widest text-background/60 mb-2">
@@ -70,7 +70,6 @@ export function NetworkSection() {
                 className="w-full bg-transparent border-background/20 text-background hover:bg-primary hover:text-primary-foreground hover:border-primary group-hover:border-primary/50 transition-all"
               >
                 {type.cta}
-                <ArrowUpRight className="ml-2 h-4 w-4" />
               </Button>
             </div>
           ))}

@@ -6,7 +6,11 @@ import Link from "next/link"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { Button } from "@/components/ui/button"
-import { CheckCircle, Loader2, AlertCircle, ExternalLink } from "lucide-react"
+import {
+  CheckCircle,
+  CircleNotch,
+  WarningCircle,
+} from "@phosphor-icons/react"
 
 function EnrollSuccessContent() {
   const searchParams = useSearchParams()
@@ -77,7 +81,7 @@ function EnrollSuccessContent() {
 
           {status === "loading" && (
             <div className="py-12">
-              <Loader2 className="h-12 w-12 animate-spin text-primary mx-auto mb-4" />
+              <CircleNotch className="size-12 animate-spin text-primary mx-auto mb-4" />
               <p className="text-muted-foreground">Confirming your payment…</p>
             </div>
           )}
@@ -85,7 +89,7 @@ function EnrollSuccessContent() {
           {status === "error" && (
             <div className="py-8">
               <div className="w-16 h-16 rounded-full bg-destructive/10 flex items-center justify-center mx-auto mb-6">
-                <AlertCircle className="h-9 w-9 text-destructive" />
+                <WarningCircle className="size-9 text-destructive" />
               </div>
               <h2 className="font-serif text-2xl sm:text-3xl tracking-tight text-foreground mb-3">
                 Something went wrong
@@ -100,7 +104,7 @@ function EnrollSuccessContent() {
           {status === "success" && (
             <>
               <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-6">
-                <CheckCircle className="h-9 w-9 text-primary" />
+                <CheckCircle className="size-9 text-primary" />
               </div>
               <h2 className="font-serif text-3xl sm:text-4xl tracking-tight text-foreground mb-3">
                 You&apos;re enrolled!
@@ -126,7 +130,6 @@ function EnrollSuccessContent() {
                   <Button asChild variant="outline">
                     <a href={data.receiptUrl} target="_blank" rel="noopener noreferrer">
                       View Receipt
-                      <ExternalLink className="ml-2 h-4 w-4" />
                     </a>
                   </Button>
                 )}
@@ -151,7 +154,7 @@ export default function EnrollSuccessPage() {
         <Header />
         <section className="pt-24 pb-24 lg:pt-32 lg:pb-32">
           <div className="mx-auto max-w-2xl px-6 lg:px-8 text-center py-12">
-            <Loader2 className="h-12 w-12 animate-spin text-primary mx-auto mb-4" />
+            <CircleNotch className="size-12 animate-spin text-primary mx-auto mb-4" />
             <p className="text-muted-foreground">Loading…</p>
           </div>
         </section>

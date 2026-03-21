@@ -7,7 +7,12 @@ import { Footer } from "@/components/footer"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
-import { Mail, Linkedin, ChevronDown, ChevronUp } from "lucide-react"
+import {
+  Envelope,
+  LinkedinLogo,
+  CaretDown,
+  CaretUp,
+} from "@phosphor-icons/react"
 import AnimatedContent from "@/components/AnimatedContent"
 
 const team = [
@@ -112,9 +117,9 @@ function TeamMemberCard({ member, index }: { member: typeof team[0], index: numb
                 className="mt-2 text-primary text-sm font-medium flex items-center gap-1 hover:underline"
               >
                 {isExpanded ? (
-                  <>Show Less <ChevronUp className="size-4" /></>
+                  <>Show Less <CaretUp className="size-4" /></>
                 ) : (
-                  <>Read More <ChevronDown className="size-4" /></>
+                  <>Read More <CaretDown className="size-4" /></>
                 )}
               </button>
             )}
@@ -122,14 +127,14 @@ function TeamMemberCard({ member, index }: { member: typeof team[0], index: numb
           <div className="flex flex-wrap gap-3 pt-2">
             <Button asChild size="sm" variant="outline" className="border-border hover:bg-primary/5 transition-colors">
               <a href={`mailto:${member.email}`}>
-                <Mail className="mr-1.5 h-3.5 w-3.5" />
+                <Envelope className="mr-1.5 size-3.5" />
                 Email
               </a>
             </Button>
             {member.linkedin && (
               <Button asChild size="sm" variant="outline" className="border-border hover:bg-primary/5 transition-colors">
                 <a href={member.linkedin} target="_blank" rel="noopener noreferrer">
-                  <Linkedin className="mr-1.5 h-3.5 w-3.5" />
+                  <LinkedinLogo className="mr-1.5 size-3.5" />
                   LinkedIn
                 </a>
               </Button>

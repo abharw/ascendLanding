@@ -7,19 +7,29 @@ import { Footer } from "@/components/footer"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
-import { CheckCircle, AlertCircle, Loader2, GraduationCap, Users, Building2, MessageSquare, Award, School } from "lucide-react"
+import {
+  CheckCircle,
+  WarningCircle,
+  CircleNotch,
+  GraduationCap,
+  Users,
+  Buildings,
+  ChatCircle,
+  Medal,
+  HouseLine,
+} from "@phosphor-icons/react"
 
 type Status = "idle" | "loading" | "success" | "error"
 type AudienceKey = "school" | "parent" | "employer" | "schoolDistrict" | "sponsor" | "mentor" | ""
 
 const audienceTabs: { key: AudienceKey; label: string; icon: React.ElementType }[] = [
-  { key: "", label: "General", icon: MessageSquare },
+  { key: "", label: "General", icon: ChatCircle },
   { key: "school", label: "For Schools", icon: GraduationCap },
-  { key: "schoolDistrict", label: "School Districts", icon: School },
+  { key: "schoolDistrict", label: "School Districts", icon: HouseLine },
   { key: "parent", label: "For Parents", icon: Users },
-  { key: "employer", label: "For Employers", icon: Building2 },
+  { key: "employer", label: "For Employers", icon: Buildings },
   { key: "mentor", label: "Become a Mentor", icon: Users },
-  { key: "sponsor", label: "Sponsors", icon: Award },
+  { key: "sponsor", label: "Sponsors", icon: Medal },
 ]
 
 const audienceContent: Record<string, {
@@ -185,7 +195,7 @@ function ContactPageContent() {
           <div className="mt-12 bg-card border border-border rounded-lg p-8 lg:p-12">
             {status === "success" ? (
               <div className="flex flex-col items-center justify-center text-center min-h-[320px] gap-4 py-8">
-                <CheckCircle className="h-14 w-14 text-primary" />
+                <CheckCircle className="size-14 text-primary" />
                 <h2 className="font-semibold text-2xl text-foreground">Message sent!</h2>
                 <p className="text-muted-foreground max-w-sm">
                   We&apos;ll get back to you within 24 hours. Check your inbox for a confirmation email.
@@ -283,7 +293,7 @@ function ContactPageContent() {
                 >
                   {status === "loading" ? (
                     <>
-                      <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                      <CircleNotch className="mr-2 size-5 animate-spin" />
                       Sending…
                     </>
                   ) : (
@@ -307,7 +317,7 @@ function ContactPageFallback() {
       <Header />
       <section className="pt-24 pb-24 lg:pt-32 lg:pb-32">
         <div className="mx-auto max-w-3xl px-6 lg:px-8 flex items-center justify-center min-h-[400px]">
-          <Loader2 className="h-10 w-10 animate-spin text-muted-foreground" />
+          <CircleNotch className="size-10 animate-spin text-muted-foreground" />
         </div>
       </section>
       <Footer />

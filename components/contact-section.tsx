@@ -4,7 +4,7 @@ import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
-import { CheckCircle, AlertCircle, Loader2 } from "lucide-react"
+import { CheckCircle, WarningCircle, CircleNotch } from "@phosphor-icons/react"
 
 type Status = "idle" | "loading" | "success" | "error"
 
@@ -99,7 +99,7 @@ export function ContactSection() {
           <div className="bg-background border border-border rounded-lg p-8 lg:p-10">
             {status === "success" ? (
               <div className="flex flex-col items-center justify-center text-center h-full min-h-[320px] gap-4">
-                <CheckCircle className="h-12 w-12 text-primary" />
+                <CheckCircle className="size-12 text-primary" />
                 <h3 className="font-semibold text-xl text-foreground">Message sent!</h3>
                 <p className="text-muted-foreground">
                   We&apos;ll get back to you within 24 hours. Check your email for a confirmation.
@@ -171,7 +171,7 @@ export function ContactSection() {
 
                 {status === "error" && (
                   <div className="flex items-center gap-2 text-sm text-destructive">
-                    <AlertCircle className="h-4 w-4 shrink-0" />
+                    <WarningCircle className="size-4 shrink-0" />
                     {errorMsg}
                   </div>
                 )}
@@ -184,7 +184,7 @@ export function ContactSection() {
                 >
                   {status === "loading" ? (
                     <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      <CircleNotch className="mr-2 size-4 animate-spin" />
                       Sending…
                     </>
                   ) : (

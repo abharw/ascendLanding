@@ -2,7 +2,6 @@
 
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { ArrowRight } from "lucide-react"
 import CountUp from "@/components/CountUp"
 
 const stats = [
@@ -38,7 +37,6 @@ export function CtaStrip() {
           <Button asChild size="lg" className="h-12 px-8 text-base font-medium">
             <Link href="/programs">
               Explore Programs
-              <ArrowRight className="ml-2 h-4 w-4" />
             </Link>
           </Button>
           <Button asChild size="lg" variant="outline" className="h-12 px-8 text-base font-medium">

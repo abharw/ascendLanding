@@ -27,9 +27,9 @@ const pillars = [
 
 export function PillarsSection() {
   return (
-    <section id="programs" className="py-24 lg:py-32 bg-card">
+    <section id="programs" className="py-24 lg:py-32 bg-secondary/30">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
-        <div className="mx-auto max-w-2xl text-center mb-16 lg:mb-20">
+        <div className="mx-auto max-w-2xl text-center mb-16 lg:mb-24">
           <p className="text-sm font-semibold uppercase tracking-widest text-primary mb-4">
             Our Programs
           </p>
@@ -43,40 +43,41 @@ export function PillarsSection() {
           </p>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-6 lg:gap-8">
-          {pillars.map((pillar, index) => (
-            <AnimatedContent
-              key={pillar.number}
-              direction="vertical"
-              distance={40}
-              delay={index * 0.15}
-              duration={0.6}
-              className="h-full"
-            >
-            <div
-              className="group relative bg-background border border-border rounded-lg p-8 lg:p-10 hover:border-foreground/20 transition-all duration-300 h-full"
-            >
-              <div className="mb-6">
-                <span className="font-bold tracking-tight text-5xl lg:text-6xl text-muted-foreground/30 group-hover:text-primary/60 transition-colors">
-                  {pillar.number}
-                </span>
-              </div>
-              
-              <h3 className="font-semibold tracking-tight text-xl lg:text-2xl text-foreground mb-4">
-                {pillar.title}
-              </h3>
-              
-              <p className="text-muted-foreground leading-relaxed">
-                {pillar.description}
-              </p>
-              <Link href={`/programs#${pillar.id}`} className="mt-6 inline-flex">
-                <Button variant="outline" size="sm" className="group/btn">
-                  Learn more & register
-                </Button>
-              </Link>
-            </div>
-            </AnimatedContent>
-          ))}
+        <div className="max-w-4xl mx-auto relative">
+          {/* Vertical connecting line */}
+          <div className="absolute left-8 md:left-[3.25rem] top-10 bottom-10 w-px bg-border hidden md:block" />
+
+          <div className="space-y-12">
+            {pillars.map((pillar, index) => (
+              <AnimatedContent direction="vertical" distance={20} duration={0.4} delay={index * 0.15} key={pillar.id}>
+                <div className="relative flex flex-col md:flex-row gap-6 md:gap-10 items-start">
+                  
+                  {/* Number Node */}
+                  <div className="w-16 h-16 rounded-2xl bg-background border-2 border-primary/20 shadow-sm flex items-center justify-center shrink-0 relative z-10 md:ml-5">
+                    <span className="text-2xl font-bold text-primary">{pillar.number}</span>
+                  </div>
+                  
+                  {/* Content Card */}
+                  <div className="flex-1 bg-background border border-border shadow-sm rounded-xl p-8 lg:p-10 transition-all hover:border-primary/30 w-full group">
+                    <h3 className="font-semibold text-2xl lg:text-3xl text-foreground leading-snug mb-4 group-hover:text-primary transition-colors">
+                      {pillar.title}
+                    </h3>
+                    
+                    <p className="text-muted-foreground leading-relaxed text-lg mb-8 max-w-2xl">
+                      {pillar.description}
+                    </p>
+                    
+                    <Button asChild variant="outline" className="w-full sm:w-auto shadow-sm hover:ring-2 hover:ring-primary/20 hover:-translate-y-0.5 transition-all">
+                      <Link href={`/programs#${pillar.id}`}>
+                        Learn more & register
+                      </Link>
+                    </Button>
+                  </div>
+
+                </div>
+              </AnimatedContent>
+            ))}
+          </div>
         </div>
       </div>
     </section>

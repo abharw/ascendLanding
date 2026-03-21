@@ -4,7 +4,7 @@ import Link from "next/link"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { Button } from "@/components/ui/button"
-import { ArrowRight, Target, FileCheck, Building2 } from "lucide-react"
+import { Target, Check, Buildings } from "@phosphor-icons/react"
 import AnimatedContent from "@/components/AnimatedContent"
 
 export default function ImpactPage() {
@@ -30,7 +30,7 @@ export default function ImpactPage() {
             <AnimatedContent direction="vertical" distance={40} delay={0.1} duration={0.6}>
               <div className="flex gap-4">
                 <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                  <Target className="h-6 w-6 text-primary" />
+                  <Target className="size-6 text-primary" />
                 </div>
                 <div>
                   <h2 className="font-serif text-2xl sm:text-3xl tracking-tight text-foreground mb-4">
@@ -46,7 +46,7 @@ export default function ImpactPage() {
             <AnimatedContent direction="vertical" distance={40} delay={0.2} duration={0.6}>
               <div className="flex gap-4">
                 <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                  <FileCheck className="h-6 w-6 text-primary" />
+                  <Check className="h-6 w-6 text-primary" />
                 </div>
                 <div>
                   <h2 className="font-serif text-2xl sm:text-3xl tracking-tight text-foreground mb-4">
@@ -76,7 +76,7 @@ export default function ImpactPage() {
             <AnimatedContent direction="vertical" distance={40} delay={0.3} duration={0.6}>
               <div className="flex gap-4">
                 <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                  <Building2 className="h-6 w-6 text-primary" />
+                  <Buildings className="size-6 text-primary" />
                 </div>
                 <div>
                   <h2 className="font-serif text-2xl sm:text-3xl tracking-tight text-foreground mb-4">
@@ -88,7 +88,6 @@ export default function ImpactPage() {
                   <Button asChild>
                     <Link href="/contact?audience=school">
                       Get in Touch
-                      <ArrowRight className="ml-2 h-4 w-4" />
                     </Link>
                   </Button>
                 </div>

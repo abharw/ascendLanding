@@ -2,8 +2,9 @@
 
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { ArrowRight, GraduationCap, Users, Building2 } from "lucide-react"
+import { GraduationCap, Users, Buildings } from "@phosphor-icons/react"
 import AnimatedContent from "@/components/AnimatedContent"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 const audiences = [
   {
@@ -31,7 +32,7 @@ const audiences = [
     href: "/enroll",
   },
   {
-    icon: Building2,
+    icon: Buildings,
     label: "For Employers",
     headline: "Build your talent pipeline through proven apprenticeship.",
     bullets: [
@@ -48,7 +49,7 @@ export function WhoWeServeSection() {
   return (
     <section id="who-we-serve" className="py-24 lg:py-32 bg-card">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
-        <div className="mx-auto max-w-2xl text-center mb-16 lg:mb-20">
+        <div className="mx-auto max-w-2xl text-center mb-16">
           <p className="text-sm font-semibold uppercase tracking-widest text-primary mb-4">
             Who We Serve
           </p>
@@ -56,54 +57,60 @@ export function WhoWeServeSection() {
             Built for Schools, Families, and Industry.
           </h2>
           <p className="mt-4 text-lg text-muted-foreground max-w-xl mx-auto">
-            Whether you're a school looking for turnkey curriculum, a parent investing
-            in your student's future, or an employer building a talent pipeline — we
+            Whether you&apos;re a school looking for turnkey curriculum, a parent investing
+            in your student&apos;s future, or an employer building a talent pipeline — we
             have a clear path for you.
           </p>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-6 lg:gap-8">
-          {audiences.map((audience, index) => (
-            <AnimatedContent
-              key={audience.label}
-              direction="vertical"
-              distance={40}
-              delay={index * 0.12}
-              duration={0.6}
-              className="h-full"
-            >
-              <div className="flex flex-col bg-background border border-border rounded-lg p-8 lg:p-10 h-full hover:border-primary/30 transition-colors duration-300">
-                <div className="flex items-center gap-3 mb-5">
-                  <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                    <audience.icon className="h-5 w-5 text-primary" />
+        <div className="max-w-4xl mx-auto">
+          <Tabs defaultValue={audiences[0].label} className="w-full">
+            <TabsList className="grid w-full grid-cols-1 md:grid-cols-3 h-auto gap-2 p-1 bg-muted/50 mb-8 rounded-lg">
+              {audiences.map((audience) => (
+                <TabsTrigger 
+                  key={audience.label} 
+                  value={audience.label}
+                  className="py-3 text-base md:text-sm lg:text-base data-[state=active]:shadow-sm rounded-md"
+                >
+                  <audience.icon className="w-5 h-5 mr-2" />
+                  {audience.label}
+                </TabsTrigger>
+              ))}
+            </TabsList>
+            
+            {audiences.map((audience) => (
+              <TabsContent key={audience.label} value={audience.label} className="outline-none">
+                <AnimatedContent direction="vertical" distance={20} duration={0.4}>
+                  <div className="flex flex-col md:flex-row bg-background border border-border shadow-sm rounded-xl p-8 lg:p-12 gap-8 items-center lg:items-start transition-all">
+                    <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center shrink-0">
+                      <audience.icon className="h-8 w-8 text-primary" />
+                    </div>
+                    
+                    <div className="flex-1 text-center md:text-left">
+                      <h3 className="font-semibold text-2xl lg:text-3xl text-foreground leading-snug mb-6">
+                        {audience.headline}
+                      </h3>
+                      
+                      <ul className="space-y-4 mb-8 text-left">
+                        {audience.bullets.map((bullet) => (
+                          <li key={bullet} className="flex items-start gap-3 text-base text-muted-foreground">
+                            <span className="mt-2 w-2 h-2 rounded-full bg-primary/80 shrink-0" />
+                            {bullet}
+                          </li>
+                        ))}
+                      </ul>
+                      
+                      <Button asChild size="lg" className="w-full md:w-auto shadow-sm hover:ring-2 hover:ring-primary/20 hover:-translate-y-0.5 transition-all">
+                        <Link href={audience.href}>
+                          {audience.cta}
+                        </Link>
+                      </Button>
+                    </div>
                   </div>
-                  <span className="text-sm font-semibold uppercase tracking-widest text-primary">
-                    {audience.label}
-                  </span>
-                </div>
-
-                <h3 className="font-semibold text-xl text-foreground leading-snug mb-5">
-                  {audience.headline}
-                </h3>
-
-                <ul className="space-y-3 mb-8 flex-1">
-                  {audience.bullets.map((bullet) => (
-                    <li key={bullet} className="flex items-start gap-2.5 text-sm text-muted-foreground">
-                      <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-primary/60 shrink-0" />
-                      {bullet}
-                    </li>
-                  ))}
-                </ul>
-
-                <Button asChild variant="outline" className="w-full group">
-                  <Link href={audience.href}>
-                    {audience.cta}
-                    <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-0.5 transition-transform" />
-                  </Link>
-                </Button>
-              </div>
-            </AnimatedContent>
-          ))}
+                </AnimatedContent>
+              </TabsContent>
+            ))}
+          </Tabs>
         </div>
       </div>
     </section>

@@ -14,7 +14,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { ArrowRight, ArrowLeft, Check, CheckCircle, Loader2, AlertCircle, ExternalLink, ShoppingCart, FlaskConical } from "lucide-react"
+import {
+  Check,
+  CheckCircle,
+  CircleNotch,
+  WarningCircle,
+  ShoppingCart,
+  Flask,
+} from "@phosphor-icons/react"
 
 // ─── Program data ──────────────────────────────────────────────────────────
 const PROGRAMS = [
@@ -181,7 +188,7 @@ function StepIndicator({ current }: { current: Step }) {
                   : "bg-secondary text-muted-foreground"
               }`}
             >
-              {done ? <Check className="h-3.5 w-3.5" /> : n}
+              {done ? <Check className="size-3.5" /> : n}
             </div>
             <span
               className={`text-sm font-medium hidden sm:block ${
@@ -222,12 +229,12 @@ function CartSummary({
   return (
     <div className="mt-8 rounded-lg border border-primary/30 bg-primary/[0.03] p-5">
       <div className="flex items-center gap-2 mb-4">
-        <ShoppingCart className="h-4 w-4 text-primary" />
+        <ShoppingCart className="size-4 text-primary" />
         <span className="text-sm font-semibold text-foreground">
           Cart ({total} {total === 1 ? "item" : "items"})
         </span>
         <span className="ml-auto flex items-center gap-1.5 text-xs text-amber-600 dark:text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded-full font-medium">
-          <FlaskConical className="h-3 w-3" />
+          <Flask className="size-3" />
           Test mode · $1 per item
         </span>
       </div>
@@ -354,7 +361,7 @@ function ProgramStep({
                     >
                       {inCart ? (
                         <>
-                          <Check className="mr-1 h-3 w-3" />
+                          <Check className="mr-1 size-3" />
                           In Cart
                         </>
                       ) : (
@@ -465,7 +472,6 @@ function ProgramStep({
           className="w-full sm:w-auto h-12 px-8"
         >
           Continue
-          <ArrowRight className="ml-2 h-4 w-4" />
         </Button>
       </div>
     </div>
@@ -519,7 +525,7 @@ function InfoStep({
             {mode === "bundle" ? "Flex Bundle" : `Cart · ${items.length} program${items.length !== 1 ? "s" : ""}`}
           </div>
           <div className="flex items-center gap-1.5 text-xs text-amber-600 dark:text-amber-400 font-medium">
-            <FlaskConical className="h-3 w-3" />
+            <Flask className="size-3" />
             Test total: {testTotalDisplay(items.length)}
           </div>
         </div>
@@ -756,12 +762,10 @@ function InfoStep({
 
       <div className="flex gap-3">
         <Button variant="outline" size="lg" onClick={onBack} className="h-12 px-6">
-          <ArrowLeft className="mr-2 h-4 w-4" />
           Back
         </Button>
         <Button size="lg" disabled={!valid} onClick={onNext} className="h-12 px-8">
           Continue to Payment
-          <ArrowRight className="ml-2 h-4 w-4" />
         </Button>
       </div>
     </div>
@@ -932,7 +936,7 @@ function PaymentStep({
       </h2>
 
       <div className="mb-6 flex items-center gap-2 text-xs text-amber-600 dark:text-amber-400 bg-amber-500/10 px-3 py-2 rounded-md font-medium">
-        <FlaskConical className="h-3.5 w-3.5 shrink-0" />
+        <Flask className="size-3.5 shrink-0" />
         Test mode — your card will be charged {testTotal} (not the displayed program prices)
       </div>
 
@@ -946,7 +950,7 @@ function PaymentStep({
         )}
         {formStatus === "load-error" && (
           <div className="flex items-center gap-2 text-sm text-destructive h-14">
-            <AlertCircle className="h-4 w-4 shrink-0" />
+            <WarningCircle className="size-4 shrink-0" />
             Failed to load payment form. Please refresh the page.
           </div>
         )}
@@ -958,7 +962,7 @@ function PaymentStep({
 
       {paymentError && (
         <div className="flex items-center gap-2 text-sm text-destructive mb-4">
-          <AlertCircle className="h-4 w-4 shrink-0" />
+          <WarningCircle className="size-4 shrink-0" />
           {paymentError}
         </div>
       )}
@@ -975,7 +979,6 @@ function PaymentStep({
           disabled={formStatus === "processing"}
           className="h-12 px-6"
         >
-          <ArrowLeft className="mr-2 h-4 w-4" />
           Back
         </Button>
         <Button
@@ -986,7 +989,7 @@ function PaymentStep({
         >
           {formStatus === "processing" ? (
             <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              <CircleNotch className="mr-2 size-4 animate-spin" />
               Processing…
             </>
           ) : (
@@ -1011,7 +1014,7 @@ function SuccessView({
   return (
     <div className="text-center py-8">
       <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-6">
-        <CheckCircle className="h-9 w-9 text-primary" />
+        <CheckCircle className="size-9 text-primary" />
       </div>
       <h2 className="font-serif text-3xl sm:text-4xl tracking-tight text-foreground mb-3">
         You&apos;re enrolled!
@@ -1033,7 +1036,6 @@ function SuccessView({
           <Button asChild variant="outline">
             <a href={receiptUrl} target="_blank" rel="noopener noreferrer">
               View Receipt
-              <ExternalLink className="ml-2 h-4 w-4" />
             </a>
           </Button>
         )}

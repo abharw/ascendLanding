@@ -4,7 +4,7 @@ import Link from "next/link"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { Button } from "@/components/ui/button"
-import { ArrowRight, Award, Zap } from "lucide-react"
+import { Medal, Lightning } from "@phosphor-icons/react"
 import AnimatedContent from "@/components/AnimatedContent"
 
 const tiers = [
@@ -49,7 +49,7 @@ export default function SponsorPage() {
         <div className="mx-auto max-w-4xl px-6 lg:px-8">
           <AnimatedContent direction="vertical" distance={30} duration={0.6}>
             <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-6">
-              <Award className="h-6 w-6 text-primary" />
+              <Medal className="size-6 text-primary" />
             </div>
             <p className="text-sm font-semibold uppercase tracking-widest text-primary mb-6">
               Join as a Sponsor
@@ -74,7 +74,7 @@ export default function SponsorPage() {
               >
                 <div className="flex flex-col h-full rounded-lg border border-border bg-card p-6 lg:p-8">
                   <div className="flex items-center gap-2 mb-4">
-                    <Zap className="h-5 w-5 text-primary" />
+                    <Lightning className="size-5 text-primary" />
                     <span className="font-semibold text-lg text-foreground">{tier.name}</span>
                   </div>
                   <div className="font-bold text-2xl text-primary mb-6">{tier.price}</div>
@@ -89,7 +89,6 @@ export default function SponsorPage() {
                   <Button asChild variant="outline" className="mt-6 w-full">
                     <Link href="/contact?audience=sponsor">
                       Inquire
-                      <ArrowRight className="ml-2 h-4 w-4" />
                     </Link>
                   </Button>
                 </div>

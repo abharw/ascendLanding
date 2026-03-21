@@ -12,7 +12,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion"
 import AnimatedContent from "@/components/AnimatedContent"
-import { Check } from "lucide-react"
+import { Check } from "@phosphor-icons/react"
 
 const accordionTriggerClass =
   "py-6 text-left hover:no-underline [&[data-state=open]>svg]:rotate-180"
@@ -202,7 +202,7 @@ export default function ProgramsPage() {
                           <ul className="space-y-2">
                             {program.details.whatIncluded.map((item, i) => (
                               <li key={i} className="flex gap-2 text-muted-foreground">
-                                <Check className="h-4 w-4 text-primary shrink-0 mt-0.5" />
+                                <Check className="size-4 text-primary shrink-0 mt-0.5" />
                                 {item}
                               </li>
                             ))}
@@ -213,7 +213,7 @@ export default function ProgramsPage() {
                           <ul className="space-y-2">
                             {program.details.outcomes.map((item, i) => (
                               <li key={i} className="flex gap-2 text-muted-foreground">
-                                <Check className="h-4 w-4 text-primary shrink-0 mt-0.5" />
+                                <Check className="size-4 text-primary shrink-0 mt-0.5" />
                                 {item}
                               </li>
                             ))}
