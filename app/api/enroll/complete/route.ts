@@ -45,7 +45,7 @@ export async function POST(req: NextRequest) {
           : SquareEnvironment.Sandbox,
     })
     const orderRes = await client.orders.get({ orderId })
-    const order = orderRes.body.order
+    const order = orderRes.order
 
     if (!order?.tenders?.length) {
       return NextResponse.json(
@@ -65,7 +65,7 @@ export async function POST(req: NextRequest) {
     let receiptUrl: string | undefined
     try {
       const paymentRes = await client.payments.getPayment(paymentId)
-      receiptUrl = paymentRes.body.payment?.receiptUrl
+      receiptUrl = paymentRes.payment?.receiptUrl
     } catch {
       // Non-fatal; we have paymentId
     }
@@ -97,6 +97,7 @@ export async function POST(req: NextRequest) {
             squarePaymentId: paymentId,
           }),
         })
+        await updateEnrollment(enrollmentId, { lmsSyncedAt: new Date().toISOString() })
       } catch (lmsErr) {
         console.error("LMS enroll fetch failed:", lmsErr)
       }

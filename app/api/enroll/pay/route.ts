@@ -1,47 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { SquareClient, SquareEnvironment } from "square"
 import { saveEnrollment, updateEnrollment } from "@/lib/enrollments-db"
-
-
-const PROGRAM_PRICES: Record<string, number> = {
-  "ascendiq-bootcamp": 149_500,
-  "startup-lab": 49_900,
-  "skills-internships": 39_900,
-  "career-training": 59_900,
-}
-
-const PROGRAM_NAMES: Record<string, string> = {
-  "ascendiq-bootcamp": "Summer Startup Lab",
-  "startup-lab": "Entrepreneurship Training",
-  "skills-internships": "Apprenticeship Skill Building",
-  "career-training": "Mentoring & Coaching",
-}
-
-const OPEN_PROGRAMS = [
-  "ascendiq-bootcamp",
-  "flex-bundle",
-  "startup-lab",
-  "skills-internships",
-  "career-training",
-  "cart",
-]
-
-function computeAmount(
-  programId: string,
-  bundleSelections: string[],
-  cartItems: string[],
-): number | null {
-  if (programId === "cart") {
-    if (cartItems.length === 0) return null
-    const total = cartItems.reduce((sum, id) => sum + (PROGRAM_PRICES[id] ?? 0), 0)
-    return total > 0 ? total : null
-  }
-  if (programId === "flex-bundle") {
-    if (bundleSelections.length < 2) return null
-    return bundleSelections.reduce((sum, id) => sum + (PROGRAM_PRICES[id] ?? 0), 0)
-  }
-  return PROGRAM_PRICES[programId] ?? null
-}
+import { OPEN_PROGRAMS, computeAmount, deriveProgramLabel } from "@/lib/programs"
 
 export async function POST(req: NextRequest) {
   console.log("[pay] route called, env check:", {
@@ -139,48 +99,42 @@ async function handlePay(req: NextRequest) {
   }
 
   // Derive programId and programName for the DB record
-  let dbProgramId = programId
-  let dbProgramName: string
-  if (programId === "cart") {
-    dbProgramId = "cart:" + cartItems.join("+")
-    dbProgramName = cartItems.map((id) => PROGRAM_NAMES[id] ?? id).join(", ")
-  } else if (programId === "flex-bundle") {
-    dbProgramName = "Flex Bundle: " + bundleSelections.map((id) => PROGRAM_NAMES[id] ?? id).join(", ")
-  } else {
-    dbProgramName = PROGRAM_NAMES[programId] ?? programId
-  }
+  const { dbProgramId, dbProgramName } = deriveProgramLabel(programId, bundleSelections, cartItems)
 
   const locationId = process.env.SQUARE_LOCATION_ID ?? ""
 
+  const enrollmentData = {
+    name,
+    email,
+    phone: phone ?? "",
+    studentName: studentName ?? "",
+    programId: dbProgramId,
+    programName: dbProgramName,
+    amountCents,
+    parentFirstName: parentFirstName ?? "",
+    parentLastName: parentLastName ?? "",
+    signUpForNews: signUpForNews ?? false,
+    country: country ?? "",
+    addressLine1: addressLine1 ?? "",
+    addressLine2: addressLine2 ?? "",
+    city: city ?? "",
+    state: state ?? "",
+    zipCode: zipCode ?? "",
+    grade: grade ?? "",
+    studentFirstName: studentFirstName ?? "",
+    studentLastName: studentLastName ?? "",
+    studentEmail: studentEmail ?? "",
+    studentPhone: studentPhone ?? "",
+    highSchoolAttending: highSchoolAttending ?? "",
+  }
+
   // 1. Save PENDING enrollment before charging
   let enrollmentId: string
+  let dbSaveSucceeded = false
   try {
-    const enrollment = await saveEnrollment({
-      name,
-      email,
-      phone: phone ?? "",
-      studentName: studentName ?? "",
-      programId: dbProgramId,
-      programName: dbProgramName,
-      amountCents,
-      squarePaymentId: "PENDING",
-      parentFirstName: parentFirstName ?? "",
-      parentLastName: parentLastName ?? "",
-      signUpForNews: signUpForNews ?? false,
-      country: country ?? "",
-      addressLine1: addressLine1 ?? "",
-      addressLine2: addressLine2 ?? "",
-      city: city ?? "",
-      state: state ?? "",
-      zipCode: zipCode ?? "",
-      grade: grade ?? "",
-      studentFirstName: studentFirstName ?? "",
-      studentLastName: studentLastName ?? "",
-      studentEmail: studentEmail ?? "",
-      studentPhone: studentPhone ?? "",
-      highSchoolAttending: highSchoolAttending ?? "",
-    })
+    const enrollment = await saveEnrollment({ ...enrollmentData, squarePaymentId: "PENDING" })
     enrollmentId = enrollment.id
+    dbSaveSucceeded = true
   } catch {
     enrollmentId = crypto.randomUUID()
   }
@@ -213,10 +167,19 @@ async function handlePay(req: NextRequest) {
       return NextResponse.json({ error: "Payment failed. Please try again." }, { status: 500 })
     }
 
-    // 3. Update enrollment with real payment ID
-    await updateEnrollment(enrollmentId, { squarePaymentId: paymentId, receiptUrl })
+    // 3. Update enrollment with real payment ID (or save full record if initial save failed)
+    if (dbSaveSucceeded) {
+      await updateEnrollment(enrollmentId, { squarePaymentId: paymentId, receiptUrl })
+    } else {
+      try {
+        const saved = await saveEnrollment({ ...enrollmentData, squarePaymentId: paymentId, receiptUrl })
+        enrollmentId = saved.id
+      } catch (dbErr) {
+        console.error("Failed to save enrollment after payment:", dbErr)
+      }
+    }
 
-    // 4. Notify LMS (fire-and-forget)
+    // 4. Notify LMS (fire-and-forget); mark lmsSyncedAt on success
     const lmsUrl = process.env.LMS_INTERNAL_URL
     const enrollSecret = process.env.ENROLL_SECRET
     if (lmsUrl && enrollSecret) {
@@ -236,7 +199,9 @@ async function handlePay(req: NextRequest) {
           programName: dbProgramName,
           squarePaymentId: paymentId,
         }),
-      }).catch((err) => console.error("LMS notify failed:", err))
+      })
+        .then(() => updateEnrollment(enrollmentId, { lmsSyncedAt: new Date().toISOString() }))
+        .catch((err) => console.error("LMS notify failed:", err))
     }
 
     return NextResponse.json({ success: true, paymentId, receiptUrl })

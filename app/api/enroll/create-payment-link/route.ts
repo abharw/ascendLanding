@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { SquareClient, SquareEnvironment } from "square"
 import { saveEnrollment } from "@/lib/enrollments-db"
+import { OPEN_PROGRAMS, computeAmount, deriveProgramLabel } from "@/lib/programs"
 
 
 function getBaseUrl(req: NextRequest): string {
@@ -13,7 +14,8 @@ export async function POST(req: NextRequest) {
   let body: {
     programId?: string
     programName?: string
-    amount?: number
+    bundleSelections?: string[]
+    cartItems?: string[]
     name?: string
     email?: string
     phone?: string
@@ -43,8 +45,8 @@ export async function POST(req: NextRequest) {
 
   const {
     programId,
-    programName,
-    amount,
+    bundleSelections = [],
+    cartItems = [],
     name,
     email,
     phone,
@@ -66,12 +68,10 @@ export async function POST(req: NextRequest) {
     highSchoolAttending,
   } = body
 
-  if (!programId || !amount || !name || !email) {
+  if (!programId || !name || !email) {
     return NextResponse.json({ error: "Missing required fields." }, { status: 422 })
   }
 
-  // Only open programs accepted
-  const OPEN_PROGRAMS = ["ascendiq-bootcamp", "flex-bundle"]
   if (!OPEN_PROGRAMS.includes(programId)) {
     return NextResponse.json(
       { error: "This program is not currently open for enrollment." },
@@ -79,25 +79,16 @@ export async function POST(req: NextRequest) {
     )
   }
 
-  // Enforce pricing per program (same as main enroll route)
-  if (programId === "ascendiq-bootcamp") {
-    const EXPECTED_CENTS = 149_500
-    if (amount !== EXPECTED_CENTS) {
-      return NextResponse.json(
-        { error: "Invalid amount. Summer Startup Lab is $1,495 per student." },
-        { status: 400 }
-      )
-    }
-  } else if (programId === "flex-bundle") {
-    const MIN_BUNDLE_CENTS = 149_900
-    if (amount < MIN_BUNDLE_CENTS) {
-      return NextResponse.json(
-        { error: "Invalid amount. Flex Bundle starts at $1,499." },
-        { status: 400 }
-      )
-    }
+  // Compute amount server-side — never trust the client amount
+  const amountCents = computeAmount(programId, bundleSelections, cartItems)
+  if (!amountCents) {
+    return NextResponse.json(
+      { error: "Invalid program or cart selection." },
+      { status: 400 }
+    )
   }
 
+  const { dbProgramId, dbProgramName } = deriveProgramLabel(programId, bundleSelections, cartItems)
   const locationId = process.env.SQUARE_LOCATION_ID ?? ""
 
   try {
@@ -109,9 +100,9 @@ export async function POST(req: NextRequest) {
         email,
         phone: phone ?? "",
         studentName: studentName ?? "",
-        programId,
-        programName: programName ?? "",
-        amountCents: amount,
+        programId: dbProgramId,
+        programName: dbProgramName,
+        amountCents,
         squarePaymentId: "PENDING",
         parentFirstName: parentFirstName ?? "",
         parentLastName: parentLastName ?? "",
@@ -148,9 +139,9 @@ export async function POST(req: NextRequest) {
     const response = await client.checkout.paymentLinks.create({
       idempotencyKey: crypto.randomUUID(),
       quickPay: {
-        name: programName ?? `AscendIQ — ${programId}`,
+        name: dbProgramName,
         priceMoney: {
-          amount: BigInt(amount),
+          amount: BigInt(amountCents),
           currency: "USD",
         },
         locationId,
@@ -164,7 +155,7 @@ export async function POST(req: NextRequest) {
       },
     })
 
-    const paymentLink = response.body.paymentLink
+    const paymentLink = response.paymentLink
     const checkoutUrl = paymentLink?.url
 
     if (!checkoutUrl) {
