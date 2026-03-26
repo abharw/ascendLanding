@@ -1,8 +1,9 @@
+// TEST PRICES — revert to real values before going live
 export const PROGRAM_PRICES: Record<string, number> = {
-  "ascendiq-bootcamp": 149_500,
-  "startup-lab": 49_900,
-  "skills-internships": 39_900,
-  "career-training": 59_900,
+  "ascendiq-bootcamp": 100,
+  "startup-lab": 200,
+  "skills-internships": 300,
+  "career-training": 400,
 }
 
 export const PROGRAM_NAMES: Record<string, string> = {
