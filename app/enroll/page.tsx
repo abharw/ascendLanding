@@ -915,7 +915,7 @@ function PaymentStep({
       <div className="mb-2">
         {formStatus === "initializing" && (
           <div className="flex items-center gap-2 text-sm text-muted-foreground h-14">
-            <Loader2 className="h-4 w-4 animate-spin shrink-0" />
+            <CircleNotch className="h-4 w-4 animate-spin shrink-0" />
             Loading secure payment form…
           </div>
         )}
