@@ -29,7 +29,7 @@ const PROGRAMS = [
     phase: "DISCOVER",
     name: "Summer Startup Lab",
     cohort: "Summer 2026",
-    startDate: "June 1, 2026",
+    startDate: "July 7, 2026",
     duration: "6 weeks · Daily sessions",
     ageRange: "Ages 13–15",
     spotsLeft: 15,
