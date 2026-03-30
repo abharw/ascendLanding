@@ -27,7 +27,7 @@ const leadership = [
   },
   {
     name: "Aarav Patel",
-    role: "Head of Strategy",
+    role: "COO & CFO",
     tagline: "An emerging entrepreneur and strategy-focused builder working at the intersection of finance, technology, and venture growth.",
     bio: "Aarav Patel is an emerging entrepreneur and strategy-focused builder working at the intersection of finance, technology, and venture growth. As Head of Strategy within the Emerging Builders program, he focuses on translating innovative ideas into scalable businesses and sustainable revenue models. Aarav studies Finance and Statistics at Carnegie Mellon University’s Tepper School of Business, where his academic and professional interests center on enterprise software companies and how strategic finance can accelerate their growth.\n\nAarav has hands-on experience helping build and scale early-stage ventures. He worked on a pothole detection startup that developed hardware and data solutions to help municipalities identify infrastructure issues more efficiently, where he contributed to growth strategy, commercialization planning, and investor communication. He also worked on an RPA-driven automation venture focused on improving operational efficiency for organizations through workflow automation. Across both ventures, Aarav concentrated on market research, monetization strategy, and product positioning, helping translate technical innovation into clear economic value.\n\nIn addition to his entrepreneurial work, Aarav has gained experience in private equity where he supported investment research and evaluated strategies for scaling companies. He will be joining BNY Mellon as a Financial Analyst this summer and will join Barclays as an Investment Banking Analyst the following summer, further developing his expertise in strategic finance and capital markets.\n\nAarav builds because he enjoys transforming ambitious ideas into real systems that create value. He is motivated by helping innovative technology companies scale through disciplined strategy, strong financial foundations, and thoughtful execution.",
     email: "aarav@ascendiq.com",
@@ -41,15 +41,6 @@ const leadership = [
     bio: "Arav is a technical visionary and former startup lead. He is architecting the next generation of learning platforms to ensure students are equipped with real-world technical proficiency and adaptive skills. His expertise lies in building robust, performant systems that scale with user needs while maintaining a premium user experience.",
     email: "arav@ascendiq.com",
     image: "/team/arav_bhardwaj.jpg",
-    linkedin: "#",
-  },
-  {
-    name: "Akeil Smith",
-    role: "CPO",
-    tagline: "Product strategist dedicated to democratizing career-ready education through innovative design.",
-    bio: "Akeil is a product strategist focused on democratizing career-ready education. He designs accessible, high-impact programs that bridge the gap between traditional learning and future market needs. With a background in youth development and EdTech, he ensures that every program is both rigorous and engaging.",
-    email: "akeil@ascendiq.com",
-    image: "/team/akeil_smith.jpg",
     linkedin: "#",
   },
 ]
