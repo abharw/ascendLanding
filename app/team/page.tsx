@@ -138,8 +138,9 @@ function TeamMemberCard({ member, index }: { member: typeof leadership[0], index
       distance={40}
       delay={index * 0.1}
       duration={0.6}
+      className="h-full"
     >
-      <Card className={`overflow-hidden border-border bg-card/50 backdrop-blur-sm hover:border-primary/40 transition-all duration-300 group flex flex-col ${isExpanded ? 'col-span-full lg:col-span-2' : ''}`}>
+      <Card className={`h-full overflow-hidden border-border bg-card/50 backdrop-blur-sm hover:border-primary/40 transition-all duration-300 group flex flex-col ${isExpanded ? 'col-span-full lg:col-span-2' : ''}`}>
         <CardHeader className="pb-4">
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6">
             <Avatar className="size-24 rounded-xl sm:size-28 border-2 border-border shadow-inner group-hover:border-primary/30 transition-colors">
