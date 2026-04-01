@@ -8,18 +8,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 const audiences = [
   {
-    icon: GraduationCap,
-    label: "For Schools",
-    headline: "Bring workforce readiness to your students — no curriculum to build.",
-    bullets: [
-      "Turnkey apprenticeship pathways, ready to implement",
-      "Technical assistance and educator support included",
-      "Meets federal workforce development standards",
-    ],
-    cta: "Partner With Us",
-    href: "/contact?audience=school",
-  },
-  {
     icon: Users,
     label: "For Parents",
     headline: "Give your student a real edge before graduation.",
@@ -30,6 +18,18 @@ const audiences = [
     ],
     cta: "Enroll Your Student",
     href: "/enroll",
+  },
+  {
+    icon: GraduationCap,
+    label: "For Schools",
+    headline: "Bring workforce readiness to your students — no curriculum to build.",
+    bullets: [
+      "Turnkey apprenticeship pathways, ready to implement",
+      "Technical assistance and educator support included",
+      "Meets federal workforce development standards",
+    ],
+    cta: "Partner With Us",
+    href: "/contact?audience=school",
   },
   {
     icon: Buildings,
