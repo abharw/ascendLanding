@@ -280,7 +280,7 @@ function ContactPageContent() {
 
                 {status === "error" && (
                   <div className="flex items-center gap-2 text-sm text-destructive">
-                    <AlertCircle className="h-4 w-4 shrink-0" />
+                    <WarningCircle className="h-4 w-4 shrink-0" />
                     {errorMsg}
                   </div>
                 )}
