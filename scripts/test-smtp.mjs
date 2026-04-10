@@ -1,39 +1,22 @@
 /**
- * Test contact form SMTP delivery locally.
+ * Test contact form email delivery via Resend.
  * Run: node --env-file=.env scripts/test-smtp.mjs
- * Mirrors the transport + payload used by app/api/contact/route.ts.
  */
-import nodemailer from "nodemailer"
 
-const SMTP_HOST = process.env.SMTP_HOST ?? "smtp.gmail.com"
-const SMTP_PORT = Number(process.env.SMTP_PORT ?? 587)
-const SMTP_USER = process.env.SMTP_USER ?? ""
-const SMTP_PASS = process.env.SMTP_PASS ?? ""
-const FROM_EMAIL = process.env.CONTACT_EMAIL_FROM ?? `AscendIQ <${SMTP_USER}>`
-const TO_EMAILS = (process.env.CONTACT_EMAIL_TO ?? SMTP_USER)
+const RESEND_API_KEY = process.env.RESEND_API_KEY ?? ""
+const FROM_EMAIL = process.env.CONTACT_EMAIL_FROM ?? "AscendIQ <hello@ascendiq.work>"
+const TO_EMAILS = (process.env.CONTACT_EMAIL_TO ?? "")
   .split(",")
   .map((addr) => addr.trim())
   .filter(Boolean)
 
-if (!SMTP_USER || !SMTP_PASS) {
-  console.error("Missing SMTP_USER or SMTP_PASS. Set them in .env")
+if (!RESEND_API_KEY) {
+  console.error("Missing RESEND_API_KEY. Set it in .env")
   process.exit(1)
 }
 
-const transporter = nodemailer.createTransport({
-  host: SMTP_HOST,
-  port: SMTP_PORT,
-  secure: SMTP_PORT === 465,
-  auth: { user: SMTP_USER, pass: SMTP_PASS },
-})
-
-console.log(`Testing ${SMTP_HOST}:${SMTP_PORT} as ${SMTP_USER}...`)
-
-try {
-  await transporter.verify()
-  console.log("✓ SMTP authentication OK")
-} catch (err) {
-  console.error("✗ SMTP authentication failed:", err.message)
+if (TO_EMAILS.length === 0) {
+  console.error("Missing CONTACT_EMAIL_TO. Set it in .env")
   process.exit(1)
 }
 
@@ -43,7 +26,6 @@ const timestamp = new Date().toLocaleString("en-US", {
   timeStyle: "short",
 })
 
-// Sample submission — mirrors what app/api/contact/route.ts would build.
 const sample = {
   name: "Jane Smith",
   email: "jane.smith@lincolnschools.org",
@@ -85,18 +67,36 @@ const html = `
   </div>
 `
 
+console.log(`Testing Resend API...`)
+console.log(`From: ${FROM_EMAIL}`)
+console.log(`To: ${TO_EMAILS.join(", ")}`)
+
 try {
-  const info = await transporter.sendMail({
-    from: FROM_EMAIL,
-    to: TO_EMAILS,
-    subject: `[AscendIQ] ${sample.audience}: ${sample.subject}`,
-    replyTo: sample.email,
-    html,
+  const res = await fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: {
+      "Authorization": `Bearer ${RESEND_API_KEY}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      from: FROM_EMAIL,
+      to: TO_EMAILS,
+      subject: `[AscendIQ] ${sample.audience}: ${sample.subject}`,
+      html,
+      reply_to: sample.email,
+    }),
   })
-  console.log("✓ Sent message:", info.messageId)
-  console.log(`✓ Delivered to: ${TO_EMAILS.join(", ")}`)
-  console.log("\nSMTP transport OK. Check your inbox.")
+
+  const data = await res.json()
+
+  if (!res.ok) {
+    console.error(`✗ Resend API error (${res.status}):`, data.message ?? JSON.stringify(data))
+    process.exit(1)
+  }
+
+  console.log("✓ Sent:", data.id)
+  console.log("\nResend transport OK. Check your inbox.")
 } catch (err) {
-  console.error("✗ Send failed:", err.message)
+  console.error("✗ Request failed:", err.message)
   process.exit(1)
 }

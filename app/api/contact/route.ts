@@ -1,22 +1,11 @@
-import nodemailer from "nodemailer"
 import { NextRequest, NextResponse } from "next/server"
 
-const SMTP_HOST = process.env.SMTP_HOST ?? "smtp.gmail.com"
-const SMTP_PORT = Number(process.env.SMTP_PORT ?? 587)
-const SMTP_USER = process.env.SMTP_USER ?? ""
-const SMTP_PASS = process.env.SMTP_PASS ?? ""
-const FROM_EMAIL = process.env.CONTACT_EMAIL_FROM ?? `AscendIQ <${SMTP_USER}>`
-const TO_EMAILS = (process.env.CONTACT_EMAIL_TO ?? SMTP_USER)
+const RESEND_API_KEY = process.env.RESEND_API_KEY ?? ""
+const FROM_EMAIL = process.env.CONTACT_EMAIL_FROM ?? "AscendIQ <hello@ascendiq.work>"
+const TO_EMAILS = (process.env.CONTACT_EMAIL_TO ?? "")
   .split(",")
   .map((addr) => addr.trim())
   .filter(Boolean)
-
-const transporter = nodemailer.createTransport({
-  host: SMTP_HOST,
-  port: SMTP_PORT,
-  secure: SMTP_PORT === 465,
-  auth: { user: SMTP_USER, pass: SMTP_PASS },
-})
 
 const AUDIENCE_LABELS: Record<string, string> = {
   school: "School / District",
@@ -129,20 +118,34 @@ export async function POST(req: NextRequest) {
   `
 
   try {
-    await transporter.sendMail({
-      from: FROM_EMAIL,
-      to: TO_EMAILS,
-      subject: `[AscendIQ] ${audienceLabel}: ${subjectLine}`,
-      html: notificationHtml,
-      replyTo: email,
+    const res = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${RESEND_API_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        from: FROM_EMAIL,
+        to: TO_EMAILS,
+        subject: `[AscendIQ] ${audienceLabel}: ${subjectLine}`,
+        html: notificationHtml,
+        reply_to: email,
+      }),
     })
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}))
+      const msg = err.message ?? `Resend API error (${res.status})`
+      console.error("Resend error:", msg)
+      return NextResponse.json({ error: msg }, { status: 500 })
+    }
 
     return NextResponse.json({ success: true })
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err)
-    console.error("SMTP error:", message)
+    console.error("Resend error:", message)
     return NextResponse.json(
-      { error: `SMTP error: ${message}` },
+      { error: "Failed to send. Please try again or email us directly." },
       { status: 500 }
     )
   }

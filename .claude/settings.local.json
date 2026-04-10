@@ -21,7 +21,9 @@
       "Bash(convert --version)",
       "Bash(python -c \"from PIL import Image; print\\(''Pillow available''\\)\")",
       "Bash(python:*)",
-      "Bash(curl:*)"
+      "Bash(curl:*)",
+      "Bash(node --env-file=.env scripts/test-smtp.mjs)",
+      "Bash(nslookup:*)"
     ]
   }
 }
