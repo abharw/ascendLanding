@@ -1,21 +1,11 @@
 import { NextRequest, NextResponse } from "next/server"
 
 const RESEND_API_KEY = process.env.RESEND_API_KEY ?? ""
-const FROM_EMAIL = process.env.CONTACT_EMAIL_FROM ?? "AscendIQ <hello@ascendiq.work>"
+const FROM_EMAIL = "AscendIQ <hello@ascendiq.work>"
 const TO_EMAILS = (process.env.CONTACT_EMAIL_TO ?? "")
   .split(",")
   .map((addr) => addr.trim())
   .filter(Boolean)
-
-// TEMPORARY diagnostic — remove after debugging
-export async function GET() {
-  const key = process.env.RESEND_API_KEY ?? ""
-  return NextResponse.json({
-    RESEND_API_KEY: key ? `${key.slice(0, 6)}...${key.slice(-4)} (${key.length} chars)` : "MISSING",
-    CONTACT_EMAIL_FROM: process.env.CONTACT_EMAIL_FROM ?? "MISSING",
-    CONTACT_EMAIL_TO: process.env.CONTACT_EMAIL_TO ?? "MISSING",
-  })
-}
 
 const AUDIENCE_LABELS: Record<string, string> = {
   school: "School / District",
@@ -147,7 +137,10 @@ export async function POST(req: NextRequest) {
       const err = await res.json().catch(() => ({}))
       const msg = err.message ?? `Resend API error (${res.status})`
       console.error("Resend error:", msg)
-      return NextResponse.json({ error: msg }, { status: 500 })
+      return NextResponse.json(
+        { error: "Failed to send. Please try again or email us directly." },
+        { status: 500 }
+      )
     }
 
     return NextResponse.json({ success: true })
