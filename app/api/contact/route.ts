@@ -139,9 +139,10 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ success: true })
   } catch (err) {
-    console.error("SMTP error:", err)
+    const message = err instanceof Error ? err.message : String(err)
+    console.error("SMTP error:", message)
     return NextResponse.json(
-      { error: "Failed to send. Please try again or email us directly." },
+      { error: `SMTP error: ${message}` },
       { status: 500 }
     )
   }
