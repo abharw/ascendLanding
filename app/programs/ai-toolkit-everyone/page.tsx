@@ -122,7 +122,7 @@ export default function AIToolkitAdultsPage() {
               Back to all programs
             </Link>
             <p className="text-sm font-semibold uppercase tracking-widest text-primary mb-6">
-              Curriculum · AI Toolkit for Adults
+              Curriculum · AI Toolkit for Everyone
             </p>
             <h1 className="font-serif text-4xl sm:text-5xl lg:text-6xl tracking-tight text-foreground text-balance leading-tight">
               Learn AI by doing — not by watching.
@@ -133,10 +133,10 @@ export default function AIToolkitAdultsPage() {
 
             <div className="mt-10 flex flex-col sm:flex-row gap-4">
               <Button asChild size="lg" className="h-12 px-8 text-base">
-                <Link href="/enroll?program=ai-toolkit-adults">Enroll Now – $399</Link>
+                <Link href="/enroll?program=ai-toolkit-everyone">Enroll Now – $399</Link>
               </Button>
               <Button asChild size="lg" variant="outline" className="h-12 px-8 text-base">
-                <Link href="/contact?program=ai-toolkit-adults">Ask a Question</Link>
+                <Link href="/contact?program=ai-toolkit-everyone">Ask a Question</Link>
               </Button>
             </div>
           </AnimatedContent>
@@ -272,10 +272,10 @@ export default function AIToolkitAdultsPage() {
               </p>
               <div className="mt-8 flex flex-wrap justify-center gap-4">
                 <Button asChild size="lg" className="h-12 px-8 text-base">
-                  <Link href="/enroll?program=ai-toolkit-adults">Enroll Now – $399</Link>
+                  <Link href="/enroll?program=ai-toolkit-everyone">Enroll Now – $399</Link>
                 </Button>
                 <Button asChild size="lg" variant="outline" className="h-12 px-8 text-base">
-                  <Link href="/contact?program=ai-toolkit-adults">Ask a Question</Link>
+                  <Link href="/contact?program=ai-toolkit-everyone">Ask a Question</Link>
                 </Button>
               </div>
             </div>

@@ -7,7 +7,7 @@ const navigation = {
     { name: "Entrepreneurship Training", href: "/programs#startup-lab" },
     { name: "Apprenticeship Skill Building", href: "/programs#skills-internships" },
     { name: "Mentoring & Coaching", href: "/programs#career-training" },
-    { name: "AI Toolkit for Adults", href: "/programs/ai-toolkit-adults" },
+    { name: "AI Toolkit for Everyone", href: "/programs/ai-toolkit-everyone" },
     { name: "Small Business Solutions", href: "/small-business-solutions" },
     { name: "Flex Bundle", href: "/enroll" },
   ],

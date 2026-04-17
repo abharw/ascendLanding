@@ -92,9 +92,9 @@ const PROGRAMS = [
     isBundle: false,
   },
   {
-    id: "ai-toolkit-adults",
-    phase: "ADULTS",
-    name: "AI Toolkit for Adults",
+    id: "ai-toolkit-everyone",
+    phase: "EVERYONE",
+    name: "AI Toolkit for Everyone",
     cohort: "Next Cohort 2026",
     startDate: "Rolling cohorts",
     duration: "3 sessions × 2 hours (6 hours total)",

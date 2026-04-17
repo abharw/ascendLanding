@@ -115,10 +115,10 @@ const programs = [
     },
   },
   {
-    id: "ai-toolkit-adults",
+    id: "ai-toolkit-everyone",
     number: "05",
-    phase: "ADULTS",
-    title: "AI Toolkit for Adults",
+    phase: "EVERYONE",
+    title: "AI Toolkit for Everyone",
     tagline: "Learn AI by doing — not by watching.",
     description: "A practical, no-jargon introduction to the AI tools reshaping how we work, create, and communicate. Three live Zoom sessions where adults build real slides, real spreadsheets, and real documents — guided by a live instructor every step of the way. No coding. No theory.",
     details: {
@@ -256,15 +256,15 @@ export default function ProgramsPage() {
                           {program.details.ageRange}
                         </div>
                         <div className="flex flex-col sm:flex-row flex-wrap gap-3">
-                          {program.id === "ai-toolkit-adults" ? (
+                          {program.id === "ai-toolkit-everyone" ? (
                             <>
                               <Button asChild>
-                                <Link href="/programs/ai-toolkit-adults">
+                                <Link href="/programs/ai-toolkit-everyone">
                                   View Curriculum
                                 </Link>
                               </Button>
                               <Button asChild variant="outline">
-                                <Link href="/enroll?program=ai-toolkit-adults">
+                                <Link href="/enroll?program=ai-toolkit-everyone">
                                   Enroll Now – $399
                                 </Link>
                               </Button>
