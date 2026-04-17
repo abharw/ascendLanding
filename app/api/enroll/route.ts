@@ -28,6 +28,7 @@ export async function POST(req: NextRequest) {
     studentEmail?: string
     studentPhone?: string
     highSchoolAttending?: string
+    hoodieSize?: string
   }
 
   try {
@@ -60,6 +61,7 @@ export async function POST(req: NextRequest) {
     studentEmail,
     studentPhone,
     highSchoolAttending,
+    hoodieSize,
   } = body
 
   if (!sourceId || !programId || !amount || !name || !email) {
@@ -144,6 +146,7 @@ export async function POST(req: NextRequest) {
         studentEmail: studentEmail ?? "",
         studentPhone: studentPhone ?? "",
         highSchoolAttending: highSchoolAttending ?? "",
+        hoodieSize: hoodieSize ?? "",
       })
     } catch (dbErr) {
       console.error("DynamoDB enrollment save failed:", dbErr)

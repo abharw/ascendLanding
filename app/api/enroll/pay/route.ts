@@ -44,6 +44,7 @@ async function handlePay(req: NextRequest) {
     studentEmail?: string
     studentPhone?: string
     highSchoolAttending?: string
+    hoodieSize?: string
   }
 
   try {
@@ -76,6 +77,7 @@ async function handlePay(req: NextRequest) {
     studentEmail,
     studentPhone,
     highSchoolAttending,
+    hoodieSize,
   } = body
 
   if (!sourceId || !programId || !name || !email) {
@@ -126,6 +128,7 @@ async function handlePay(req: NextRequest) {
     studentEmail: studentEmail ?? "",
     studentPhone: studentPhone ?? "",
     highSchoolAttending: highSchoolAttending ?? "",
+    hoodieSize: hoodieSize ?? "",
   }
 
   // 1. Save PENDING enrollment before charging

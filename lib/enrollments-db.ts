@@ -44,6 +44,7 @@ export type EnrollmentRecord = {
   studentEmail?: string
   studentPhone?: string
   highSchoolAttending?: string
+  hoodieSize?: string
 }
 
 export async function saveEnrollment(record: Omit<EnrollmentRecord, "id" | "createdAt">): Promise<EnrollmentRecord> {

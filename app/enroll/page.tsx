@@ -115,6 +115,7 @@ export type EnrollInfo = {
   studentEmail: string
   studentPhone: string
   highSchoolAttending: string
+  hoodieSize: string
 }
 
 const DEFAULT_ENROLL_INFO: EnrollInfo = {
@@ -134,6 +135,7 @@ const DEFAULT_ENROLL_INFO: EnrollInfo = {
   studentEmail: "",
   studentPhone: "",
   highSchoolAttending: "",
+  hoodieSize: "",
 }
 
 const US_STATES = [
@@ -735,6 +737,28 @@ function InfoStep({
             className="h-12 bg-secondary border-border text-base"
           />
         </div>
+
+        <div className="space-y-2">
+          <label htmlFor="hoodieSize" className="text-sm font-medium text-foreground">
+            Hoodie Size <span className="text-muted-foreground font-normal">(optional)</span>
+          </label>
+          <p className="text-xs text-muted-foreground">
+            We&apos;re giving hoodies to all participants — please share your child&apos;s hoodie size.
+          </p>
+          <Select value={info.hoodieSize} onValueChange={(v) => onChange("hoodieSize", v)}>
+            <SelectTrigger className="h-12 w-full bg-secondary border-border text-base">
+              <SelectValue placeholder="Select a size" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="XS">XS</SelectItem>
+              <SelectItem value="S">S</SelectItem>
+              <SelectItem value="M">M</SelectItem>
+              <SelectItem value="L">L</SelectItem>
+              <SelectItem value="XL">XL</SelectItem>
+              <SelectItem value="XXL">XXL</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
       </div>
 
       <div className="flex flex-col sm:flex-row gap-3">
@@ -874,6 +898,7 @@ function PaymentStep({
           studentEmail: info.studentEmail,
           studentPhone: info.studentPhone,
           highSchoolAttending: info.highSchoolAttending,
+          hoodieSize: info.hoodieSize,
         }),
       })
       const data = await res.json()
