@@ -3,6 +3,7 @@ export const PROGRAM_PRICES: Record<string, number> = {
   "startup-lab": 49_900,
   "skills-internships": 39_900,
   "career-training": 300_000,
+  "ai-toolkit-adults": 39_900,
 }
 
 export const PROGRAM_NAMES: Record<string, string> = {
@@ -10,6 +11,7 @@ export const PROGRAM_NAMES: Record<string, string> = {
   "startup-lab": "Entrepreneurship Training",
   "skills-internships": "Apprenticeship Skill Building",
   "career-training": "Mentoring & Coaching",
+  "ai-toolkit-adults": "AI Toolkit for Adults",
 }
 
 export const OPEN_PROGRAMS = [
@@ -18,6 +20,7 @@ export const OPEN_PROGRAMS = [
   "startup-lab",
   "skills-internships",
   "career-training",
+  "ai-toolkit-adults",
   "cart",
 ]
 

@@ -91,6 +91,22 @@ const PROGRAMS = [
     comingSoon: true,
     isBundle: false,
   },
+  {
+    id: "ai-toolkit-adults",
+    phase: "ADULTS",
+    name: "AI Toolkit for Adults",
+    cohort: "Next Cohort 2026",
+    startDate: "Rolling cohorts",
+    duration: "3 sessions × 2 hours (6 hours total)",
+    ageRange: "Working adults · all backgrounds",
+    spotsLeft: 20,
+    price: 39900,
+    priceDisplay: "$399",
+    description:
+      "A practical, no-jargon introduction to the AI tools reshaping how we work, create, and communicate. Three live Zoom sessions where adults build real slides, real spreadsheets, and real documents — guided by a live instructor every step of the way. No coding. No theory.",
+    comingSoon: false,
+    isBundle: false,
+  },
 ]
 
 const BUNDLE_PROGRAMS = PROGRAMS
